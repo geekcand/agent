@@ -241,8 +241,8 @@
     <div class="brand-group">
       <span class="brand-chip">&lt;/&gt; V2.0</span>
       <div>
-        <h1 class="brand-title">Canned Lite <span>V2</span></h1>
-        <div class="brand-by">Engineered By Geek • Fast Phrase Engine</div>
+        <h1 class="brand-title">Agent Lite V2<span>V2</span></h1>
+        <div class="brand-by">Developed By Geek • version 2</div>
       </div>
     </div>
     <div>
@@ -565,16 +565,22 @@ document.getElementById('jsonUpload').addEventListener('change', (e)=>{
   reader.readAsText(file);
 });
 
-/* Export Suite */
+/* Export Suite - تم إصلاح دعم تصدير المفضلة هنا */
 exportDropBtn.addEventListener('click', (e)=>{ e.stopPropagation(); exportDropMenu.classList.toggle('show'); });
 document.addEventListener('click', ()=> exportDropMenu.classList.remove('show'));
 exportDropMenu.addEventListener('click', (e)=>{
   const act = e.target.dataset.act;
-  if(act === 'html') triggerDownload(document.documentElement.outerHTML, 'Canned_Lite_V2.html', 'text/html');
-  else if(act === 'csv'){
+  if(act === 'html') {
+    triggerDownload(document.documentElement.outerHTML, 'Canned_Lite_V2.html', 'text/html');
+  } else if(act === 'csv'){
     const lines = ['keyword,text'];
     CANNED_STORE.forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
     triggerDownload(lines.join('\n'), 'Canned_Lite.csv', 'text/csv');
+  } else if(act === 'favs'){
+    const lines = ['keyword,text'];
+    CANNED_STORE.filter(i => FAV_KEYS.includes(i.keyword))
+      .forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
+    triggerDownload(lines.join('\n'), 'Canned_Favorites.csv', 'text/csv');
   }
 });
 
@@ -592,7 +598,7 @@ document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
 });
 
 /* =================================================================
-   COMPACT HUD (Live Clock -> 📸 -> ⏳ 2:00 -> Stopwatch 00:00)
+   COMPACT HUD
    ================================================================= */
 const hudTemplateMarkup = `
   <div class="chrono-box">
@@ -779,7 +785,13 @@ function initHudEngine(win){
   }
   updateLiveClock();
   const clockInterval = win.setInterval(updateLiveClock, 1000);
-  win.addEventListener('unload', ()=> win.clearInterval(clockInterval));
+
+  // تنظيف شامل لجميع المؤقتات عند إغلاق النافذة العائمة
+  win.addEventListener('pagehide', ()=>{
+    win.clearInterval(clockInterval);
+    if(stopwatchInterval) win.clearInterval(stopwatchInterval);
+    if(holdInterval) win.clearInterval(holdInterval);
+  });
 
   function formatTime(ms){
     const totalSecs = Math.floor(ms / 1000);
@@ -862,24 +874,45 @@ function initHudEngine(win){
     }
   });
 
+  /* آلية التقاط الشاشة المضمونة والخالية من أخطاء ImageCapture */
   chronoSnapAction.addEventListener('click', async ()=>{
+    let stream = null;
     try {
       if (!targetDirHandle && ('showDirectoryPicker' in win || 'showDirectoryPicker' in window)) {
         const picker = win.showDirectoryPicker || window.showDirectoryPicker;
         targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
       }
-      const stream = await win.navigator.mediaDevices.getDisplayMedia({ video: { cursor: "always" }, audio: false });
-      const track = stream.getVideoTracks()[0];
-      const imageCapture = new ImageCapture(track);
-      const bitmap = await imageCapture.grabFrame();
-      track.stop();
+      
+      stream = await win.navigator.mediaDevices.getDisplayMedia({ 
+        video: { cursor: "always" }, 
+        audio: false 
+      });
+
+      const video = d.createElement('video');
+      video.srcObject = stream;
+
+      await new Promise((resolve) => {
+        video.onloadedmetadata = async () => {
+          try {
+            await video.play();
+            resolve();
+          } catch(e) {
+            resolve();
+          }
+        };
+      });
 
       const canvas = d.createElement('canvas');
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
-      canvas.getContext('2d').drawImage(bitmap, 0, 0);
+      canvas.width = video.videoWidth || 1920;
+      canvas.height = video.videoHeight || 1080;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // إيقاف بث الفيديو فور التقاط الفريم
+      stream.getTracks().forEach(track => track.stop());
 
       canvas.toBlob(async (blob)=>{
+        if(!blob) return;
         const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
         if (targetDirHandle) {
           try {
@@ -895,9 +928,15 @@ function initHudEngine(win){
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
         link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
         triggerHudToast('تم تنزيل الصورة 📸');
       }, 'image/jpeg', 0.92);
-    } catch(err){}
+
+    } catch(err){
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
   });
 
   win.addEventListener('keydown', (e)=>{
