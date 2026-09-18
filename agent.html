@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Canned Lite V2 • By Geek</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #06080d;
+    --bg-surface: #0c1017;
+    --bg-elevated: #131924;
+    --bg-hover: #1b2332;
+    --accent-primary: #00ffaa;
+    --accent-glow: rgba(0, 255, 170, 0.25);
+    --accent-secondary: #ff0055;
+    --accent-cyan: #00e5ff;
+    --accent-amber: #ffaa00;
+    --text-main: #f1f5f9;
+    --text-muted: #64748b;
+    --text-sub: #94a3b8;
+    --border: #1e293b;
+    --border-active: #334155;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+    --font-code: 'Fira Code', monospace;
+    --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    padding: 24px 16px;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 15% 10%, rgba(0, 255, 170, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(255, 0, 85, 0.03) 0%, transparent 40%);
+  }
+
+  .shell { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+  .deck-header {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .deck-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan), var(--accent-secondary));
+  }
+  .brand-group { display: flex; align-items: center; gap: 14px; }
+  .brand-chip {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-active);
+    color: var(--accent-primary);
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .brand-title { font-size: 20px; font-weight: 800; }
+  .brand-title span { color: var(--accent-cyan); }
+  .brand-by { font-size: 11px; color: var(--text-muted); font-family: var(--font-code); margin-top: 2px; }
+
+  .control-bay {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 18px;
+  }
+  .bay-left, .bay-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .geek-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .geek-btn:hover { background: var(--bg-hover); color: #fff; transform: translateY(-1px); }
+  .geek-btn.primary {
+    background: var(--accent-primary);
+    color: #03150d;
+    border-color: var(--accent-primary);
+    font-weight: 700;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .geek-btn.danger:hover { background: rgba(255, 0, 85, 0.15); border-color: var(--accent-secondary); color: var(--accent-secondary); }
+  .geek-btn.active-state { background: rgba(0, 255, 170, 0.1); color: var(--accent-primary); border-color: var(--accent-primary); }
+  .geek-btn.amber-active { background: rgba(255, 170, 0, 0.12); color: var(--accent-amber); border-color: var(--accent-amber); }
+
+  .search-station {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 10px 16px;
+  }
+  .station-select {
+    background: var(--bg-elevated);
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+  }
+  .input-wrapper { position: relative; width: 100%; }
+  .station-input {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 11px 40px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .station-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 14px rgba(0, 229, 255, 0.15); }
+  .input-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; font-family: var(--font-code); }
+  .input-clear { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: none; }
+
+  .stat-counter { font-family: var(--font-code); font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+  .stat-counter b { color: var(--accent-cyan); }
+
+  .data-board { display: flex; flex-direction: column; gap: 10px; }
+  .canned-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .canned-card:hover { background: var(--bg-elevated); border-color: var(--border-active); transform: translateX(-3px); }
+  .trigger-badge {
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+  }
+  .card-body { font-size: 13.5px; color: var(--text-sub); line-height: 1.6; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-actions { display: flex; align-items: center; gap: 6px; }
+  .action-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 34px; height: 34px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .action-btn:hover { color: #fff; background: var(--bg-hover); }
+  .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
+
+  .toast-banner {
+    position: fixed;
+    bottom: 24px; left: 24px;
+    background: #000;
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 8px 30px rgba(0, 255, 170, 0.25);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 99999;
+  }
+  .toast-banner.visible { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-primary); }
+
+  .dropdown-wrap { position: relative; }
+  .pop-menu {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-md);
+    padding: 6px; display: none; flex-direction: column; gap: 4px; min-width: 170px; z-index: 50;
+  }
+  .pop-menu.show { display: flex; }
+  .pop-item { background: transparent; border: none; color: var(--text-sub); padding: 8px 12px; font-size: 12.5px; cursor: pointer; text-align: right; }
+  .pop-item:hover { background: var(--bg-elevated); color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <header class="deck-header">
+    <div class="brand-group">
+      <span class="brand-chip">&lt;/&gt; V2.0</span>
+      <div>
+        <h1 class="brand-title">Canned Lite <span>V2</span></h1>
+        <div class="brand-by">Engineered By Geek • Fast Phrase Engine</div>
+      </div>
+    </div>
+    <div>
+      <button id="dockModeBtn" class="geek-btn primary">📌 تفعيل الوضع العائم المستقل</button>
+    </div>
+  </header>
+
+  <nav class="control-bay">
+    <div class="bay-left">
+      <button id="toggleAutoBtn" class="geek-btn active-state">⚡ Auto-Copy: نشط</button>
+      <button id="toggleFavFilter" class="geek-btn">❤️ المفضلة فقط</button>
+      <button id="createSnippetBtn" class="geek-btn">➕ إضافة اختصار</button>
+    </div>
+    <div class="bay-right">
+      <label for="excelUpload" class="geek-btn" style="cursor:pointer">📂 Import Excel</label>
+      <input id="excelUpload" type="file" accept=".xlsx,.xls" style="display:none">
+
+      <label for="jsonUpload" class="geek-btn" style="cursor:pointer">⚡ Import Backup</label>
+      <input id="jsonUpload" type="file" accept=".btbackup,.json" style="display:none">
+
+      <div class="dropdown-wrap">
+        <button id="exportDropBtn" class="geek-btn">📦 Export ▾</button>
+        <div id="exportDropMenu" class="pop-menu">
+          <button class="pop-item" data-act="html">💾 حفظ كملف HTML</button>
+          <button class="pop-item" data-act="csv">📑 حفظ كملف CSV</button>
+          <button class="pop-item" data-act="favs">❤️ تصدير المفضلة فقط</button>
+        </div>
+      </div>
+      <button id="wipeAllBtn" class="geek-btn danger">🗑️ مسح الكل</button>
+    </div>
+  </nav>
+
+  <section class="search-station">
+    <select id="queryScope" class="station-select">
+      <option value="all">كل الحقول</option>
+      <option value="keyword">Trigger فقط</option>
+      <option value="text">العبارة فقط</option>
+    </select>
+
+    <div class="input-wrapper">
+      <span class="input-icon">#_</span>
+      <input id="queryInput" class="station-input" placeholder="بحث ب أختصار الكاند..." autocomplete="off" />
+      <button id="queryReset" class="input-clear">✕</button>
+    </div>
+
+    <div class="stat-counter">
+      <span>العبارات: <b id="statTotal">0</b></span>
+      <span>المفضلة: <b id="statFavs">0</b></span>
+    </div>
+  </section>
+
+  <main id="cannedGrid" class="data-board"></main>
+</div>
+
+<div id="globalToast" class="toast-banner">
+  <span class="toast-dot"></span>
+  <span id="toastMessage">عملية ناجحة</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+let CANNED_STORE = JSON.parse(localStorage.getItem('canned_v2_data') || '[]').map(item => ({
+  keyword: (item.keyword || item.code || '').trim(),
+  text: (item.text || item.snippet || '').trim()
+}));
+
+if(!CANNED_STORE.length && localStorage.getItem('phrases_data')){
+  try {
+    CANNED_STORE = JSON.parse(localStorage.getItem('phrases_data')).map(p => ({
+      keyword: (p.keyword || p.code || '').trim(),
+      text: (p.text || '').trim()
+    }));
+  } catch(e){}
+}
+
+let FAV_KEYS = JSON.parse(localStorage.getItem('canned_v2_favs') || '[]');
+let AUTO_COPY_ACTIVE = localStorage.getItem('canned_v2_autocopy') !== 'false';
+let ONLY_FAV_FILTER = false;
+let globalDebounce = null;
+
+const cannedGrid = document.getElementById('cannedGrid');
+const queryInput = document.getElementById('queryInput');
+const queryScope = document.getElementById('queryScope');
+const queryReset = document.getElementById('queryReset');
+const statTotal = document.getElementById('statTotal');
+const statFavs = document.getElementById('statFavs');
+const toggleAutoBtn = document.getElementById('toggleAutoBtn');
+const toggleFavFilter = document.getElementById('toggleFavFilter');
+const createSnippetBtn = document.getElementById('createSnippetBtn');
+const dockModeBtn = document.getElementById('dockModeBtn');
+const exportDropBtn = document.getElementById('exportDropBtn');
+const exportDropMenu = document.getElementById('exportDropMenu');
+const globalToast = document.getElementById('globalToast');
+const toastMessage = document.getElementById('toastMessage');
+
+function syncStorage(){
+  localStorage.setItem('canned_v2_data', JSON.stringify(CANNED_STORE));
+  localStorage.setItem('canned_v2_favs', JSON.stringify(FAV_KEYS));
+  localStorage.setItem('canned_v2_autocopy', AUTO_COPY_ACTIVE);
+}
+
+function flashToast(msg){
+  toastMessage.innerText = msg;
+  globalToast.classList.add('visible');
+  setTimeout(() => globalToast.classList.remove('visible'), 2000);
+}
+
+function updateAutoCopyButtonState(){
+  toggleAutoBtn.className = AUTO_COPY_ACTIVE ? 'geek-btn active-state' : 'geek-btn';
+  toggleAutoBtn.innerHTML = AUTO_COPY_ACTIVE ? '⚡ Auto-Copy: نشط' : '⚡ Auto-Copy: معطل';
+}
+updateAutoCopyButtonState();
+
+toggleAutoBtn.addEventListener('click', ()=>{
+  AUTO_COPY_ACTIVE = !AUTO_COPY_ACTIVE;
+  updateAutoCopyButtonState();
+  syncStorage();
+  flashToast(AUTO_COPY_ACTIVE ? 'تم تفعيل النسخ التلقائي ⚡' : 'تم تعطيل النسخ التلقائي');
+});
+
+async function copyPayload(content, cardElement, label){
+  try {
+    await navigator.clipboard.writeText(content);
+    flashToast(label || 'تم النسخ بنجاح');
+    if(cardElement) {
+      cardElement.classList.add('flash');
+      setTimeout(()=> cardElement.classList.remove('flash'), 700);
+    }
+  } catch(e) {
+    const area = document.createElement('textarea');
+    area.value = content;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    document.body.removeChild(area);
+    flashToast(label || 'تم النسخ بنجاح');
+  }
+}
+
+function refreshDisplay(dataset){
+  cannedGrid.innerHTML = '';
+  dataset.forEach(entry => {
+    const isSaved = FAV_KEYS.includes(entry.keyword);
+    const card = document.createElement('div');
+    card.className = 'canned-card';
+    card.innerHTML = `
+      <div class="card-trigger"><span class="trigger-badge"># ${escapeEntities(entry.keyword)}</span></div>
+      <div class="card-body">${escapeEntities(entry.text)}</div>
+      <div class="card-actions">
+        <button class="action-btn copy-act" title="نسخ">📋</button>
+        <button class="action-btn mod-act" title="تعديل">✏️</button>
+        <button class="action-btn fav-act ${isSaved ? 'active' : ''}" title="المفضلة">${isSaved ? '❤️' : '🤍'}</button>
+        <button class="action-btn del-act" title="حذف">🗑️</button>
+      </div>
+    `;
+
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.card-actions')) return;
+      copyPayload(entry.text, card, `تم نسخ: ${entry.keyword}`);
+    });
+
+    card.querySelector('.copy-act').addEventListener('click', ()=> copyPayload(entry.text, card, `تم نسخ: ${entry.keyword}`));
+    card.querySelector('.fav-act').addEventListener('click', ()=> toggleFavorite(entry.keyword));
+    card.querySelector('.mod-act').addEventListener('click', ()=> modifySnippet(entry));
+    card.querySelector('.del-act').addEventListener('click', ()=> removeSnippet(entry.keyword));
+
+    cannedGrid.appendChild(card);
+  });
+
+  statTotal.innerText = CANNED_STORE.length;
+  statFavs.innerText = FAV_KEYS.length;
+}
+
+function escapeEntities(str){
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function toggleFavorite(key){
+  const idx = FAV_KEYS.indexOf(key);
+  if(idx > -1) FAV_KEYS.splice(idx, 1); else FAV_KEYS.push(key);
+  syncStorage();
+  runFilter();
+}
+
+toggleFavFilter.addEventListener('click', ()=>{
+  ONLY_FAV_FILTER = !ONLY_FAV_FILTER;
+  toggleFavFilter.classList.toggle('amber-active', ONLY_FAV_FILTER);
+  runFilter();
+});
+
+function modifySnippet(entry){
+  const newTrigger = prompt('تعديل مفتاح الاختصار (Trigger):', entry.keyword);
+  if(!newTrigger || !newTrigger.trim()) return;
+  const newText = prompt('تعديل النص:', entry.text);
+  if(!newText || !newText.trim()) return;
+
+  CANNED_STORE = CANNED_STORE.map(i => i.keyword === entry.keyword ? { keyword: newTrigger.trim(), text: newText.trim() } : i);
+  syncStorage();
+  runFilter();
+}
+
+function removeSnippet(key){
+  if(!confirm(`حذف [${key}]؟`)) return;
+  CANNED_STORE = CANNED_STORE.filter(i => i.keyword !== key);
+  FAV_KEYS = FAV_KEYS.filter(k => k !== key);
+  syncStorage();
+  runFilter();
+}
+
+createSnippetBtn.addEventListener('click', ()=>{
+  const kw = prompt('مفتاح الاختصار:');
+  if(!kw || !kw.trim()) return;
+  const txt = prompt('العبارة:');
+  if(!txt || !txt.trim()) return;
+
+  CANNED_STORE.unshift({ keyword: kw.trim(), text: txt.trim() });
+  syncStorage();
+  runFilter();
+});
+
+function runFilter(){
+  if(globalDebounce) clearTimeout(globalDebounce);
+
+  const rawVal = queryInput.value.trim().toLowerCase();
+  const scope = queryScope.value;
+  queryReset.style.display = rawVal.length ? 'block' : 'none';
+
+  let workingSet = CANNED_STORE;
+  if(ONLY_FAV_FILTER) workingSet = workingSet.filter(i => FAV_KEYS.includes(i.keyword));
+
+  if(rawVal.length){
+    if(AUTO_COPY_ACTIVE){
+      globalDebounce = setTimeout(()=>{
+        const match = workingSet.find(i => i.keyword.toLowerCase() === rawVal);
+        if(match){
+          copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
+          queryInput.value = '';
+          runFilter();
+        }
+      }, 500);
+    }
+
+    workingSet = workingSet.filter(i => {
+      const matchKey = i.keyword.toLowerCase().includes(rawVal);
+      const matchText = i.text.toLowerCase().includes(rawVal);
+      if(scope === 'keyword') return matchKey;
+      if(scope === 'text') return matchText;
+      return matchKey || matchText;
+    });
+  }
+
+  refreshDisplay(workingSet);
+}
+
+queryInput.addEventListener('input', runFilter);
+queryScope.addEventListener('change', runFilter);
+
+queryInput.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    const rawVal = queryInput.value.trim().toLowerCase();
+    const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === rawVal);
+    if(match){
+      if(globalDebounce) clearTimeout(globalDebounce);
+      copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
+      queryInput.value = '';
+      runFilter();
+    }
+  }
+});
+
+queryReset.addEventListener('click', ()=>{ queryInput.value = ''; runFilter(); });
+
+/* Excel Import */
+document.getElementById('excelUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      rows.forEach(r => {
+        const keys = Object.keys(r);
+        const kField = keys.find(k => k.toLowerCase() === 'keyword' || k.toLowerCase() === 'code');
+        const tField = keys.find(k => k.toLowerCase() === 'text' || k.toLowerCase() === 'phrase');
+        const kw = kField ? String(r[kField]).trim() : '';
+        const txt = tField ? String(r[tField]).trim() : '';
+        if(kw && txt && !CANNED_STORE.some(x => x.keyword.toLowerCase() === kw.toLowerCase())){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+        }
+      });
+      syncStorage();
+      runFilter();
+    } catch(err){}
+  };
+  reader.readAsBinaryString(file);
+});
+
+/* Backup Import */
+document.getElementById('jsonUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      const dataset = parsed.combos || (Array.isArray(parsed) ? parsed : []);
+      dataset.forEach(entry => {
+        const kw = (entry.keyword || entry.code || '').trim();
+        const txt = (entry.snippet || entry.text || '').trim();
+        if(kw && txt && !CANNED_STORE.some(x => x.keyword.toLowerCase() === kw.toLowerCase())){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+        }
+      });
+      syncStorage();
+      runFilter();
+    } catch(err){}
+  };
+  reader.readAsText(file);
+});
+
+/* Export Suite */
+exportDropBtn.addEventListener('click', (e)=>{ e.stopPropagation(); exportDropMenu.classList.toggle('show'); });
+document.addEventListener('click', ()=> exportDropMenu.classList.remove('show'));
+exportDropMenu.addEventListener('click', (e)=>{
+  const act = e.target.dataset.act;
+  if(act === 'html') triggerDownload(document.documentElement.outerHTML, 'Canned_Lite_V2.html', 'text/html');
+  else if(act === 'csv'){
+    const lines = ['keyword,text'];
+    CANNED_STORE.forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
+    triggerDownload(lines.join('\n'), 'Canned_Lite.csv', 'text/csv');
+  }
+});
+
+function triggerDownload(content, filename, mime){
+  const blob = new Blob([content], { type: mime });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
+  if(!confirm('مسح كل البيانات؟')) return;
+  CANNED_STORE = []; FAV_KEYS = []; syncStorage(); runFilter();
+});
+
+/* =================================================================
+   COMPACT HUD (Live Clock -> 📸 -> ⏳ 2:00 -> Stopwatch 00:00)
+   ================================================================= */
+const hudTemplateMarkup = `
+  <div class="chrono-box">
+    <div class="chrono-row">
+      <div id="liveClock" class="live-clock" title="ساعة الجهاز الفعلية">0:00:00</div>
+      <button id="chronoSnapAction" class="hud-btn snap" title="التقاط الشاشة">📸</button>
+      <button id="chronoHoldAction" class="hud-btn hold-btn" title="بدء / تصفير (2:00)">⏳ 2:00</button>
+      <div id="chronoDigits" class="chrono-digits" title="انقر للبدء / التصفير (Stopwatch)">00:00</div>
+    </div>
+  </div>
+  <div class="hud-input-bar">
+    <input id="hudSearchInput" class="hud-search" placeholder="بحث ب أختصار الكاند..." autocomplete="off" autofocus />
+    <div id="hudAutoBadge" class="hud-autotag">⚡ Auto</div>
+  </div>
+  <div id="hudStreamContainer" class="hud-stream"></div>
+  <div id="hudAlertToast" class="hud-toast">تم النسخ ⚡</div>
+`;
+
+const hudStyles = `
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+  body {
+    background: #06080d;
+    color: #e2e8f0;
+    font-family: system-ui, sans-serif;
+    padding: 3px;
+    user-select: none;
+    overflow-x: hidden;
+  }
+  .chrono-box { 
+    background: #0d121c; 
+    border: 1px solid #192333; 
+    border-radius: 8px; 
+    padding: 4px 6px; 
+    margin-bottom: 4px; 
+  }
+  .chrono-row { 
+    display: flex; 
+    flex-direction: row; 
+    justify-content: space-between; 
+    align-items: center; 
+    gap: 4px;
+  }
+  
+  .live-clock {
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #00e5ff;
+    background: #162030;
+    border: 1px solid #1e293b;
+    padding: 4px 5px;
+    border-radius: 5px;
+    white-space: nowrap;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .hud-btn { 
+    border: none; 
+    background: #162030; 
+    color: #000; 
+    font-size: 11px; 
+    font-weight: 700; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; padding: 0; font-size: 13px; }
+  
+  .hud-btn.hold-btn { 
+    background: #00ffaa; 
+    color: #021a11; 
+    height: 26px; 
+    padding: 0 6px; 
+    font-size: 11px; 
+    font-family: monospace;
+    font-weight: 800;
+  }
+  .hud-btn.hold-btn.running {
+    background: #162030;
+    color: #00ffaa;
+    border: 1px solid #00ffaa;
+  }
+  .hud-btn.hold-btn.halt { 
+    background: #ff0055 !important; 
+    color: #fff !important; 
+    border-color: #ff0055 !important;
+    animation: blinker 0.6s infinite alternate;
+  }
+
+  .chrono-digits { 
+    font-family: monospace; 
+    font-size: 20px; 
+    font-weight: 700; 
+    color: #00e5ff; 
+    cursor: pointer; 
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .chrono-digits:hover { background: rgba(0, 229, 255, 0.15); }
+  .chrono-digits.active { color: #00ffaa; text-shadow: 0 0 10px rgba(0, 255, 170, 0.4); }
+  @keyframes blinker { from { opacity: 1; } to { opacity: 0.6; } }
+
+  .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; position: sticky; top: 0; background: #06080d; padding-bottom: 4px; z-index: 20; }
+  .hud-search { flex: 1; background: #0d121c; border: 1px solid #192333; border-radius: 6px; color: #fff; padding: 5px 8px; font-size: 11.5px; outline: none; direction: rtl; }
+  .hud-search:focus { border-color: #00e5ff; }
+  .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 5px 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; }
+  .hud-autotag.off { background: #1e293b; color: #64748b; }
+
+  .hud-stream { display: flex; flex-direction: column; gap: 4px; max-height: 380px; overflow-y: auto; direction: rtl; }
+  .hud-item { background: #0d121c; border: 1px solid #162030; border-radius: 6px; padding: 6px; cursor: pointer; }
+  .hud-item:hover { background: #131a28; }
+  .item-head { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .item-kw { color: #00ffaa; font-family: monospace; font-size: 11px; font-weight: 700; }
+  .item-clip { background: #00e5ff; color: #000; border: none; border-radius: 4px; font-size: 9.5px; font-weight: 700; padding: 1px 5px; cursor: pointer; }
+  .item-snippet { color: #94a3b8; font-size: 10.5px; line-height: 1.3; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .hud-toast { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #00ffaa; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 12px; display: none; z-index: 1000; direction: rtl; }
+`;
+
+dockModeBtn.addEventListener('click', async ()=>{
+  if ('documentPictureInPicture' in window) {
+    try {
+      const pipWin = await window.documentPictureInPicture.requestWindow({
+        width: 270,
+        height: 420,
+      });
+
+      const styleEl = pipWin.document.createElement('style');
+      styleEl.textContent = hudStyles;
+      pipWin.document.head.appendChild(styleEl);
+      pipWin.document.body.innerHTML = hudTemplateMarkup;
+
+      initHudEngine(pipWin);
+      return;
+    } catch(err) {
+      console.warn("PiP Error:", err);
+    }
+  }
+  alert("يرجى استخدام متصفح Google Chrome محدّث للتمتع بالوضع العائم الحقيقي.");
+});
+
+function initHudEngine(win){
+  const d = win.document;
+  const chronoDigits = d.getElementById('chronoDigits');
+  const chronoHoldAction = d.getElementById('chronoHoldAction');
+  const chronoSnapAction = d.getElementById('chronoSnapAction');
+  const liveClock = d.getElementById('liveClock');
+  const hudSearchInput = d.getElementById('hudSearchInput');
+  const hudAutoBadge = d.getElementById('hudAutoBadge');
+  const hudStreamContainer = d.getElementById('hudStreamContainer');
+  const hudAlertToast = d.getElementById('hudAlertToast');
+
+  let stopwatchRunning = false;
+  let stopwatchElapsed = 0;
+  let stopwatchInterval = null;
+  let stopwatchStartTime = 0;
+
+  let holdRunning = false;
+  let holdRemaining = 120 * 1000;
+  let holdInterval = null;
+  let holdStartTime = 0;
+
+  let localAuto = AUTO_COPY_ACTIVE;
+  let hudDebounce = null;
+  let targetDirHandle = null;
+
+  function updateLiveClock(){
+    const now = new Date();
+    const h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    liveClock.innerText = `${h}:${m}:${s}`;
+  }
+  updateLiveClock();
+  const clockInterval = win.setInterval(updateLiveClock, 1000);
+  win.addEventListener('unload', ()=> win.clearInterval(clockInterval));
+
+  function formatTime(ms){
+    const totalSecs = Math.floor(ms / 1000);
+    const m = Math.floor(totalSecs / 60);
+    const s = totalSecs % 60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+
+  function renderStopwatch(){
+    chronoDigits.innerHTML = formatTime(stopwatchElapsed);
+  }
+
+  function startStopwatch(){
+    stopwatchRunning = true;
+    chronoDigits.classList.add('active');
+    stopwatchStartTime = performance.now();
+    stopwatchInterval = win.setInterval(()=>{
+      const now = performance.now();
+      stopwatchElapsed += (now - stopwatchStartTime);
+      stopwatchStartTime = now;
+      renderStopwatch();
+    }, 200);
+  }
+
+  function resetStopwatch(){
+    stopwatchRunning = false;
+    win.clearInterval(stopwatchInterval);
+    stopwatchElapsed = 0;
+    chronoDigits.classList.remove('active');
+    renderStopwatch();
+  }
+
+  chronoDigits.addEventListener('click', ()=>{
+    if(stopwatchRunning){
+      resetStopwatch();
+    } else {
+      startStopwatch();
+    }
+  });
+
+  function renderHoldUI(){
+    chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
+    if(holdRemaining <= 15000 && holdRemaining > 0){
+      chronoHoldAction.classList.add('halt');
+    }
+  }
+
+  function startHold(){
+    holdRunning = true;
+    chronoHoldAction.className = 'hud-btn hold-btn running';
+    holdStartTime = performance.now();
+    renderHoldUI();
+    holdInterval = win.setInterval(()=>{
+      const now = performance.now();
+      holdRemaining -= (now - holdStartTime);
+      holdStartTime = now;
+
+      if(holdRemaining <= 0){
+        holdRemaining = 0;
+        resetHold();
+      } else {
+        renderHoldUI();
+      }
+    }, 200);
+  }
+
+  function resetHold(){
+    holdRunning = false;
+    win.clearInterval(holdInterval);
+    holdRemaining = 120 * 1000;
+    chronoHoldAction.className = 'hud-btn hold-btn';
+    chronoHoldAction.innerText = '⏳ 2:00';
+  }
+
+  chronoHoldAction.addEventListener('click', ()=>{
+    if(holdRunning){
+      resetHold();
+    } else {
+      startHold();
+    }
+  });
+
+  chronoSnapAction.addEventListener('click', async ()=>{
+    try {
+      if (!targetDirHandle && ('showDirectoryPicker' in win || 'showDirectoryPicker' in window)) {
+        const picker = win.showDirectoryPicker || window.showDirectoryPicker;
+        targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
+      }
+      const stream = await win.navigator.mediaDevices.getDisplayMedia({ video: { cursor: "always" }, audio: false });
+      const track = stream.getVideoTracks()[0];
+      const imageCapture = new ImageCapture(track);
+      const bitmap = await imageCapture.grabFrame();
+      track.stop();
+
+      const canvas = d.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      canvas.getContext('2d').drawImage(bitmap, 0, 0);
+
+      canvas.toBlob(async (blob)=>{
+        const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
+        if (targetDirHandle) {
+          try {
+            const fileHandle = await targetDirHandle.getFileHandle(fileName, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(blob);
+            await writable.close();
+            triggerHudToast('تم الحفظ داخل Attach ✅');
+            return;
+          } catch(e){}
+        }
+        const link = d.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        link.click();
+        triggerHudToast('تم تنزيل الصورة 📸');
+      }, 'image/jpeg', 0.92);
+    } catch(err){}
+  });
+
+  win.addEventListener('keydown', (e)=>{
+    if(d.activeElement === hudSearchInput && e.code !== 'Escape') return;
+    if(e.code === 'Space'){ 
+      e.preventDefault(); 
+      if(stopwatchRunning) resetStopwatch(); else startStopwatch();
+    } else if(e.code === 'KeyR'){ 
+      e.preventDefault(); 
+      resetStopwatch();
+      resetHold();
+    }
+  });
+
+  hudAutoBadge.addEventListener('click', ()=>{
+    localAuto = !localAuto;
+    AUTO_COPY_ACTIVE = localAuto;
+    hudAutoBadge.className = 'hud-autotag ' + (localAuto ? '' : 'off');
+    hudAutoBadge.innerText = localAuto ? '⚡ Auto' : '✋ يدوي';
+    updateAutoCopyButtonState();
+    syncStorage();
+  });
+
+  function triggerHudToast(msg){
+    hudAlertToast.innerText = msg;
+    hudAlertToast.style.display = 'block';
+    setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
+  }
+
+  async function copyFromHud(text, label){
+    try {
+      await win.navigator.clipboard.writeText(text);
+      triggerHudToast(label || 'تم النسخ ✅');
+    } catch(e){}
+  }
+
+  function renderHudStream(list){
+    hudStreamContainer.innerHTML = '';
+    list.slice(0, 35).forEach(item => {
+      const card = d.createElement('div');
+      card.className = 'hud-item';
+      card.innerHTML = `
+        <div class="item-head">
+          <span class="item-kw">#${escapeEntities(item.keyword)}</span>
+          <button class="item-clip">نسخ</button>
+        </div>
+        <div class="item-snippet">${escapeEntities(item.text)}</div>
+      `;
+      card.addEventListener('click', ()=>{
+        copyFromHud(item.text, `تم نسخ: ${item.keyword}`);
+        hudSearchInput.value = '';
+        renderHudStream(CANNED_STORE);
+      });
+      card.querySelector('.item-clip').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        copyFromHud(item.text, `تم نسخ: ${item.keyword}`);
+        hudSearchInput.value = '';
+        renderHudStream(CANNED_STORE);
+      });
+      hudStreamContainer.appendChild(card);
+    });
+  }
+
+  renderHudStream(CANNED_STORE);
+
+  hudSearchInput.addEventListener('input', ()=>{
+    if(hudDebounce) clearTimeout(hudDebounce);
+    const val = hudSearchInput.value.trim().toLowerCase();
+    if(!val){ renderHudStream(CANNED_STORE); return; }
+
+    const filtered = CANNED_STORE.filter(i => i.keyword.toLowerCase().includes(val));
+    renderHudStream(filtered);
+
+    if(localAuto){
+      hudDebounce = setTimeout(()=>{
+        const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
+        if(match){
+          copyFromHud(match.text, `⚡ تم نسخ: ${match.keyword}`);
+          hudSearchInput.value = '';
+          renderHudStream(CANNED_STORE);
+        }
+      }, 500);
+    }
+  });
+
+  hudSearchInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      const val = hudSearchInput.value.trim().toLowerCase();
+      const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
+      if(match){
+        if(hudDebounce) clearTimeout(hudDebounce);
+        copyFromHud(match.text, `⚡ تم نسخ: ${match.keyword}`);
+        hudSearchInput.value = '';
+        renderHudStream(CANNED_STORE);
+      }
+    }
+  });
+}
+
+runFilter();
+</script>
+</body>
+</html>
