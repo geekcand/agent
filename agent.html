@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Agent Lite V3 • By Geek</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Lite • By Geek</title>
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4017/4017991.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -82,7 +82,6 @@
   }
   .brand-title { font-size: 20px; font-weight: 800; }
   .brand-title span { color: var(--accent-cyan); }
-  .brand-by { font-size: 11px; color: var(--text-muted); font-family: var(--font-code); margin-top: 2px; }
 
   .control-bay {
     display: flex;
@@ -211,11 +210,11 @@
   .action-btn:hover { color: #fff; background: var(--bg-hover); }
   .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
 
-  /* About & Contact View */
+  /* Views Management */
   .view-container { display: flex; flex-direction: column; gap: 20px; }
   .view-container.hidden-view { display: none; }
 
-  .about-box-card {
+  .about-box-card, .feedback-box-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-active);
     border-radius: var(--radius-lg);
@@ -228,14 +227,15 @@
     overflow: hidden;
     text-align: center;
   }
-  .about-box-card::before {
+  .feedback-box-card { text-align: right; }
+  .about-box-card::before, .feedback-box-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, var(--accent-cyan), var(--accent-primary));
   }
-  .about-box-card h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
-  .about-box-card p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; }
+  .about-box-card h2, .feedback-box-card h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+  .about-box-card p, .feedback-box-card p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; }
 
   .tools-grid-box {
     display: grid;
@@ -256,11 +256,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    transition: all 0.2s ease;
-  }
-  .tool-item-badge:hover {
-    border-color: var(--accent-cyan);
-    background: var(--bg-hover);
   }
   .tool-item-badge span {
     background: rgba(0, 229, 255, 0.1);
@@ -293,6 +288,25 @@
   }
   .contact-footer-box a:hover { text-decoration: underline; color: var(--accent-primary); }
 
+  /* Feedback Form Styling */
+  .feedback-form { display: flex; flex-direction: column; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 11px 14px; color: var(--text-main); font-family: var(--font-main); font-size: 13.5px; outline: none;
+    transition: border-color .2s ease;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-cyan); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .submit-btn {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-primary));
+    border: none; border-radius: 999px; padding: 12px; cursor: pointer;
+    font-family: var(--font-main); font-weight: 700; font-size: 14px; color: #03150d;
+    transition: filter .15s ease, transform .1s ease; margin-top: 6px;
+  }
+  .submit-btn:hover { filter: brightness(1.08); }
+
   .deck-footer-fixed {
     position: fixed;
     bottom: 0;
@@ -324,18 +338,9 @@
     display: inline-block;
     box-shadow: 0 0 8px var(--accent-primary);
   }
-  .deck-footer-fixed a {
-    color: var(--accent-cyan);
-    text-decoration: none;
-    transition: color 0.15s ease;
-  }
-  .deck-footer-fixed a:hover {
-    color: var(--accent-primary);
-    text-decoration: underline;
-  }
-  .deck-footer-fixed .sep {
-    color: var(--border-active);
-  }
+  .deck-footer-fixed a { color: var(--accent-cyan); text-decoration: none; }
+  .deck-footer-fixed a:hover { color: var(--accent-primary); text-decoration: underline; }
+  .deck-footer-fixed .sep { color: var(--border-active); }
 
   .toast-banner {
     position: fixed;
@@ -378,11 +383,12 @@
     <div class="brand-group">
       <span class="brand-chip">&lt;/&gt; V3.0</span>
       <div>
-        <h1 class="brand-title">Agent Lite <span>By Geek</span></h1>
+        <h1 class="brand-title">Agent Lite <span>• By Geek</span></h1>
       </div>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
-      <button id="aboutViewBtn" class="geek-btn cyan-btn">ℹ️ About and Contact</button>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <button id="aboutViewBtn" class="geek-btn cyan-btn"> About and Contactℹ️</button>
+      <button id="feedViewBtn" class="geek-btn cyan-btn">💡 Suggestions & Feedback</button>
       <button id="dockModeBtn" class="geek-btn primary">📌 تفعيل الوضع العائم المستقل</button>
     </div>
   </header>
@@ -439,7 +445,7 @@
   <!-- صفحة About and Contact -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
-      <h2>About Agent Lite Tool</h2>
+      <h2>About Agent Lite V3</h2>
       <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
       
       <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; text-align: center;">: Integrated Tools Directory</div>
@@ -457,6 +463,35 @@
       </div>
     </div>
   </div>
+
+  <!-- صفحة Suggestions & Feedback -->
+  <div id="feedbackPageView" class="view-container hidden-view">
+    <div class="feedback-box-card">
+      <h2>Suggestions & Feedback</h2>
+      <p>شاركنا باقتراحاتك لتطوير الأداة أو أي ملاحظات للتحسين, شكراً لمشاركتك مقدماً.</p>
+      
+      <form class="feedback-form" id="feedbackForm">
+        <div class="form-group">
+          <label for="empName">اسم الموظف</label>
+          <input type="text" id="empName" placeholder="اكتب اسمك أو اتركه فارغاً">
+        </div>
+        <div class="form-group">
+          <label for="suggType">نوع المشاركة</label>
+          <select id="suggType">
+            <option value="اقتراح تطوير أداة">اقتراح تطوير أداة</option>
+            <option value="تعديل / اضافه ">تعديل / اضافه </option>
+            <option value="مشكلة تقنية">مشكلة تقنية</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="suggText">تفاصيل الاقتراح أو الملاحظة *</label>
+          <textarea id="suggText" placeholder="اكتب تفاصيل مقترحك هنا..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="submitFeedbackBtn">إرسال الاقتراح  🚀</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <footer class="deck-footer-fixed">
@@ -466,6 +501,8 @@
   <span>version 3</span>
   <span class="sep">·</span>
   <span>Developed By : Geek</span>
+  <span class="sep">·</span>
+  <span>Contact us at: <a href="mailto:contact@cand-chat.info">contact@cand-chat.info</a></span>
 </footer>
 
 <div id="globalToast" class="toast-banner">
@@ -475,7 +512,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-  // حماية صارمة مطلقة لمنع الحفظ (Ctrl+S / Cmd+S) وفحص العناصر نهائياً
+  // حماية صارمة لمنع الحفظ (Ctrl+S / Cmd+S) وفحص العناصر نهائياً
   document.addEventListener('keydown', function(e) {
     const key = e.key.toLowerCase();
     if ((e.ctrlKey || e.metaKey) && (key === 's' || e.keyCode === 83)) {
@@ -505,7 +542,6 @@
     e.preventDefault();
   });
 
-// دالة تطبيع موحدة للاختصارات لإزالة الرموز والمسافات الزائدة بدقة
 function normalizeKey(str){
   return (str || '').toString().trim().toLowerCase().replace(/^[#\/]/, '');
 }
@@ -539,28 +575,74 @@ const toggleAutoBtn = document.getElementById('toggleAutoBtn');
 const toggleFavFilter = document.getElementById('toggleFavFilter');
 const createSnippetBtn = document.getElementById('createSnippetBtn');
 const dockModeBtn = document.getElementById('dockModeBtn');
+
 const aboutViewBtn = document.getElementById('aboutViewBtn');
+const feedViewBtn = document.getElementById('feedViewBtn');
 const mainDashboardView = document.getElementById('mainDashboardView');
 const aboutPageView = document.getElementById('aboutPageView');
+const feedbackPageView = document.getElementById('feedbackPageView');
 
 const exportDropBtn = document.getElementById('exportDropBtn');
 const exportDropMenu = document.getElementById('exportDropMenu');
 const globalToast = document.getElementById('globalToast');
 const toastMessage = document.getElementById('toastMessage');
 
-aboutViewBtn.addEventListener('click', ()=>{
-  const isHidden = aboutPageView.classList.contains('hidden-view');
-  if(isHidden){
+// تبديل العرض بين الصفحات
+function switchView(target) {
+  mainDashboardView.classList.add('hidden-view');
+  aboutPageView.classList.add('hidden-view');
+  feedbackPageView.classList.add('hidden-view');
+
+  aboutViewBtn.className = 'geek-btn cyan-btn';
+  aboutViewBtn.innerText = 'ℹ️ About and Contact';
+  feedViewBtn.className = 'geek-btn cyan-btn';
+  feedViewBtn.innerText = '💡 Suggestions & Feedback';
+
+  if (target === 'about') {
     aboutPageView.classList.remove('hidden-view');
-    mainDashboardView.classList.add('hidden-view');
     aboutViewBtn.className = 'geek-btn primary';
     aboutViewBtn.innerText = '🔙 العودة للأدوات';
+  } else if (target === 'feedback') {
+    feedbackPageView.classList.remove('hidden-view');
+    feedViewBtn.className = 'geek-btn primary';
+    feedViewBtn.innerText = '🔙 العودة للأدوات';
   } else {
-    aboutPageView.classList.add('hidden-view');
     mainDashboardView.classList.remove('hidden-view');
-    aboutViewBtn.className = 'geek-btn cyan-btn';
-    aboutViewBtn.innerText = 'ℹ️ About and Contact';
   }
+}
+
+aboutViewBtn.addEventListener('click', () => {
+  if (aboutPageView.classList.contains('hidden-view')) switchView('about');
+  else switchView('main');
+});
+
+feedViewBtn.addEventListener('click', () => {
+  if (feedbackPageView.classList.contains('hidden-view')) switchView('feedback');
+  else switchView('main');
+});
+
+// إرسال الاقتراحات والملاحظات مباشرة للـ Google Apps Script Web App بنفس الطريقة الفورية السريعة
+const feedbackForm = document.getElementById("feedbackForm");
+feedbackForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwanRWJw9hE7qPrO4vuyC2x0p7in3XYyYfJGSevWcKBEXajhog3DXfa8LWqPDVMcF43MQ/exec"; 
+
+  const payload = {
+    employeeName: document.getElementById("empName").value.trim() || "مجهول",
+    suggestionType: document.getElementById("suggType").value,
+    suggestionText: document.getElementById("suggText").value.trim()
+  };
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+
+  alert("تم إرسال اقتراحك بنجاح ، شكراً لك! 🌟");
+  feedbackForm.reset();
+  switchView('main');
 });
 
 function syncStorage(){
