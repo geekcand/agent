@@ -121,6 +121,15 @@
     font-weight: 700;
     box-shadow: 0 0 16px var(--accent-glow);
   }
+  .geek-btn.cyan-btn {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--accent-cyan);
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+  .geek-btn.cyan-btn:hover {
+    background: rgba(0, 229, 255, 0.2);
+    color: #fff;
+  }
   .geek-btn.danger:hover { background: rgba(255, 0, 85, 0.15); border-color: var(--accent-secondary); color: var(--accent-secondary); }
   .geek-btn.active-state { background: rgba(0, 255, 170, 0.1); color: var(--accent-primary); border-color: var(--accent-primary); }
   .geek-btn.amber-active { background: rgba(255, 170, 0, 0.12); color: var(--accent-amber); border-color: var(--accent-amber); }
@@ -201,6 +210,88 @@
   }
   .action-btn:hover { color: #fff; background: var(--bg-hover); }
   .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
+
+  /* About & Contact Modern Styled View */
+  .view-container { display: flex; flex-direction: column; gap: 20px; }
+  .view-container.hidden-view { display: none; }
+
+  .about-box-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    max-width: 800px;
+    margin: 20px auto;
+    width: 100%;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .about-box-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-primary));
+  }
+  .about-box-card h2 { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+  .about-box-card p { font-size: 13.5px; color: var(--text-muted); margin-bottom: 30px; }
+
+  .tools-grid-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    text-align: left; /* ضبط الاتجاه لليسار للغة الإنجليزية */
+    direction: ltr;     /* تغيير اتجاه المربع للـ LTR */
+    margin-bottom: 35px;
+  }
+  .tool-item-badge {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+  }
+  .tool-item-badge:hover {
+    border-color: var(--accent-cyan);
+    background: var(--bg-hover);
+  }
+  .tool-item-badge span {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--accent-cyan);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    flex-shrink: 0;
+  }
+
+  .contact-footer-box {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 14px;
+    color: var(--text-sub);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    direction: ltr; /* ضبط الاتجاه لليسار */
+  }
+  .contact-footer-box a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .contact-footer-box a:hover { text-decoration: underline; color: var(--accent-primary); }
 
   .deck-footer-fixed {
     position: fixed;
@@ -291,64 +382,89 @@
         <div class="brand-by">Developed By Geek • version 3</div>
       </div>
     </div>
-    <div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <button id="aboutViewBtn" class="geek-btn cyan-btn">ℹ️ About and Contact</button>
       <button id="dockModeBtn" class="geek-btn primary">📌 تفعيل الوضع العائم المستقل</button>
     </div>
   </header>
 
-  <nav class="control-bay">
-    <div class="bay-left">
-      <button id="toggleAutoBtn" class="geek-btn active-state">⚡ Auto-Copy: نشط</button>
-      <button id="toggleFavFilter" class="geek-btn">❤️ المفضلة فقط</button>
-      <button id="createSnippetBtn" class="geek-btn">➕ إضافة اختصار</button>
-    </div>
-    <div class="bay-right">
-      <label for="excelUpload" class="geek-btn" style="cursor:pointer">📂 Import Excel</label>
-      <input id="excelUpload" type="file" accept=".xlsx,.xls" style="display:none">
-
-      <label for="jsonUpload" class="geek-btn" style="cursor:pointer">⚡ Import Backup</label>
-      <input id="jsonUpload" type="file" accept=".btbackup,.json" style="display:none">
-
-      <div class="dropdown-wrap">
-        <button id="exportDropBtn" class="geek-btn">📦 Export ▾</button>
-        <div id="exportDropMenu" class="pop-menu">
-          <button class="pop-item" data-act="btbackup">💾 حفظ كملف Beeftext (.btbackup)</button>
-          <button class="pop-item" data-act="html">🌐 حفظ كملف HTML</button>
-          <button class="pop-item" data-act="csv">📑 حفظ كملف CSV</button>
-          <button class="pop-item" data-act="favs">❤️ تصدير المفضلة فقط</button>
-        </div>
+  <!-- الصفحة الرئيسية (الأدوات والاختصارات) -->
+  <div id="mainDashboardView" class="view-container">
+    <nav class="control-bay">
+      <div class="bay-left">
+        <button id="toggleAutoBtn" class="geek-btn active-state">⚡ Auto-Copy: نشط</button>
+        <button id="toggleFavFilter" class="geek-btn">❤️ المفضلة فقط</button>
+        <button id="createSnippetBtn" class="geek-btn">➕ إضافة اختصار</button>
       </div>
-      <button id="wipeAllBtn" class="geek-btn danger">🗑️ مسح الكل</button>
+      <div class="bay-right">
+        <label for="excelUpload" class="geek-btn" style="cursor:pointer">📂 Import Excel</label>
+        <input id="excelUpload" type="file" accept=".xlsx,.xls" style="display:none">
+
+        <label for="jsonUpload" class="geek-btn" style="cursor:pointer">⚡ Import Backup</label>
+        <input id="jsonUpload" type="file" accept=".btbackup,.json" style="display:none">
+
+        <div class="dropdown-wrap">
+          <button id="exportDropBtn" class="geek-btn">📦 Export ▾</button>
+          <div id="exportDropMenu" class="pop-menu">
+            <button class="pop-item" data-act="btbackup">💾 حفظ كملف Beeftext (.btbackup)</button>
+            <button class="pop-item" data-act="csv">📑 حفظ كملف CSV</button>
+            <button class="pop-item" data-act="favs">❤️ تصدير المفضلة فقط</button>
+          </div>
+        </div>
+        <button id="wipeAllBtn" class="geek-btn danger">🗑️ مسح الكل</button>
+      </div>
+    </nav>
+
+    <section class="search-station">
+      <select id="queryScope" class="station-select">
+        <option value="all">كل الحقول</option>
+        <option value="keyword">Trigger فقط</option>
+        <option value="text">العبارة فقط</option>
+      </select>
+
+      <div class="input-wrapper">
+        <span class="input-icon">#_</span>
+        <input id="queryInput" class="station-input" placeholder="بحث ب أختصار الكاند..." autocomplete="off" />
+        <button id="queryReset" class="input-clear">✕</button>
+      </div>
+
+      <div class="stat-counter">
+        <span>العبارات: <b id="statTotal">0</b></span>
+        <span>المفضلة: <b id="statFavs">0</b></span>
+      </div>
+    </section>
+
+    <main id="cannedGrid" class="data-board"></main>
+  </div>
+
+  <!-- صفحة About and Contact بتنسيق LTR لعلامة الصح والكلام -->
+  <div id="aboutPageView" class="view-container hidden-view">
+    <div class="about-box-card">
+      <h2>About Agent Lite V3</h2>
+      <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
+      
+      <div style="font-size: 14px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 15px; text-align: center;">: Integrated Tools Directory</div>
+      <div class="tools-grid-box">
+        <div class="tool-item-badge"><span>✓</span> Canned Tool Automatically</div>
+        <div class="tool-item-badge"><span>✓</span> Timer and Live Clock</div>
+        <div class="tool-item-badge"><span>✓</span> Screenshot Automatically</div>
+        <div class="tool-item-badge"><span>✓</span> Export File ( .Bt & CSV )</div>
+        <div class="tool-item-badge" style="grid-column: span 2; justify-content: center;"><span>✓</span> Add canned</div>
+      </div>
+
+      <div class="contact-footer-box">
+        <span>Contact us at:</span>
+        <a href="mailto:contact@cand-chat.info">contact@cand-chat.info</a>
+      </div>
     </div>
-  </nav>
-
-  <section class="search-station">
-    <select id="queryScope" class="station-select">
-      <option value="all">كل الحقول</option>
-      <option value="keyword">Trigger فقط</option>
-      <option value="text">العبارة فقط</option>
-    </select>
-
-    <div class="input-wrapper">
-      <span class="input-icon">#_</span>
-      <input id="queryInput" class="station-input" placeholder="بحث ب أختصار الكاند..." autocomplete="off" />
-      <button id="queryReset" class="input-clear">✕</button>
-    </div>
-
-    <div class="stat-counter">
-      <span>العبارات: <b id="statTotal">0</b></span>
-      <span>المفضلة: <b id="statFavs">0</b></span>
-    </div>
-  </section>
-
-  <main id="cannedGrid" class="data-board"></main>
+  </div>
 </div>
 
 <footer class="deck-footer-fixed">
   <span class="status-dot"></span>
   <span>Ready</span>
   <span class="sep">·</span>
-  <span>version 7</span>
+  <span>version 3</span>
   <span class="sep">·</span>
   <span>Developed By : Geek</span>
   <span class="sep">·</span>
@@ -391,10 +507,30 @@ const toggleAutoBtn = document.getElementById('toggleAutoBtn');
 const toggleFavFilter = document.getElementById('toggleFavFilter');
 const createSnippetBtn = document.getElementById('createSnippetBtn');
 const dockModeBtn = document.getElementById('dockModeBtn');
+const aboutViewBtn = document.getElementById('aboutViewBtn');
+const mainDashboardView = document.getElementById('mainDashboardView');
+const aboutPageView = document.getElementById('aboutPageView');
+
 const exportDropBtn = document.getElementById('exportDropBtn');
 const exportDropMenu = document.getElementById('exportDropMenu');
 const globalToast = document.getElementById('globalToast');
 const toastMessage = document.getElementById('toastMessage');
+
+// تبديل العرض بين لوحة الأدوات وصفحة About & Contact
+aboutViewBtn.addEventListener('click', ()=>{
+  const isHidden = aboutPageView.classList.contains('hidden-view');
+  if(isHidden){
+    aboutPageView.classList.remove('hidden-view');
+    mainDashboardView.classList.add('hidden-view');
+    aboutViewBtn.className = 'geek-btn primary';
+    aboutViewBtn.innerText = '🔙 العودة للأدوات';
+  } else {
+    aboutPageView.classList.add('hidden-view');
+    mainDashboardView.classList.remove('hidden-view');
+    aboutViewBtn.className = 'geek-btn cyan-btn';
+    aboutViewBtn.innerText = 'ℹ️ About and Contact';
+  }
+});
 
 function syncStorage(){
   localStorage.setItem('canned_v2_data', JSON.stringify(CANNED_STORE));
@@ -425,10 +561,6 @@ async function copyPayload(content, cardElement, label){
   try {
     await navigator.clipboard.writeText(content);
     flashToast(label || 'تم النسخ بنجاح');
-    if(cardElement) {
-      cardElement.classList.add('flash');
-      setTimeout(()=> cardElement.classList.remove('flash'), 700);
-    }
   } catch(e) {
     const area = document.createElement('textarea');
     area.value = content;
@@ -557,92 +689,22 @@ function runFilter(){
 
 queryInput.addEventListener('input', runFilter);
 queryScope.addEventListener('change', runFilter);
-
-queryInput.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter'){
-    const rawVal = queryInput.value.trim().toLowerCase();
-    const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === rawVal);
-    if(match){
-      if(globalDebounce) clearTimeout(globalDebounce);
-      copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
-      queryInput.value = '';
-      runFilter();
-    }
-  }
-});
-
 queryReset.addEventListener('click', ()=>{ queryInput.value = ''; runFilter(); });
 
-/* Excel Import */
-document.getElementById('excelUpload').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt){
-    try {
-      const workbook = XLSX.read(evt.target.result, { type: 'binary' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-      rows.forEach(r => {
-        const keys = Object.keys(r);
-        const kField = keys.find(k => k.toLowerCase() === 'keyword' || k.toLowerCase() === 'code');
-        const tField = keys.find(k => k.toLowerCase() === 'text' || k.toLowerCase() === 'phrase');
-        const kw = kField ? String(r[kField]).trim() : '';
-        const txt = tField ? String(r[tField]).trim() : '';
-        if(kw && txt && !CANNED_STORE.some(x => x.keyword.toLowerCase() === kw.toLowerCase())){
-          CANNED_STORE.push({ keyword: kw, text: txt });
-        }
-      });
-      syncStorage();
-      runFilter();
-    } catch(err){}
-  };
-  reader.readAsBinaryString(file);
+document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
+  if(!confirm('مسح كل البيانات؟')) return;
+  CANNED_STORE = []; FAV_KEYS = []; syncStorage(); runFilter();
 });
 
-/* Backup Import (يدعم JSON و btbackup) */
-document.getElementById('jsonUpload').addEventListener('change', (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = function(evt){
-    try {
-      const parsed = JSON.parse(evt.target.result);
-      const dataset = parsed.combos || (Array.isArray(parsed) ? parsed : []);
-      dataset.forEach(entry => {
-        const kw = (entry.keyword || entry.code || '').trim();
-        const txt = (entry.snippet || entry.text || '').trim();
-        if(kw && txt && !CANNED_STORE.some(x => x.keyword.toLowerCase() === kw.toLowerCase())){
-          CANNED_STORE.push({ keyword: kw, text: txt });
-        }
-      });
-      syncStorage();
-      runFilter();
-      flashToast('تم استيراد النسخة الاحتياطية بنجاح ✅');
-    } catch(err){
-      flashToast('تعذر قراءة الملف ❌');
-    }
-  };
-  reader.readAsText(file);
-});
-
-/* Export Suite */
 exportDropBtn.addEventListener('click', (e)=>{ e.stopPropagation(); exportDropMenu.classList.toggle('show'); });
 document.addEventListener('click', ()=> exportDropMenu.classList.remove('show'));
 
 exportDropMenu.addEventListener('click', (e)=>{
   const act = e.target.dataset.act;
   if(act === 'btbackup'){
-    // إنشاء بنية متطابقة تماماً مع نظام Beeftext Backup
     const btPayload = {
       fileVersion: 1,
-      groups: [
-        {
-          uuid: "{e9a8f4c2-0000-4000-8000-000000000001}",
-          name: "Agent Canned",
-          enabled: true
-        }
-      ],
+      groups: [{ uuid: "{e9a8f4c2-0000-4000-8000-000000000001}", name: "Agent Canned", enabled: true }],
       combos: CANNED_STORE.map((item, idx) => ({
         uuid: `{e9a8f4c2-0000-4000-8000-${String(idx + 1).padStart(12, '0')}}`,
         name: item.keyword,
@@ -656,16 +718,11 @@ exportDropMenu.addEventListener('click', (e)=>{
     };
     triggerDownload(JSON.stringify(btPayload, null, 2), 'Beeftext last update.btbackup', 'application/json');
     flashToast('تم تصدير نسخة Beeftext بنجاح 💾');
-  }
-  else if(act === 'html'){
-    triggerDownload(document.documentElement.outerHTML, 'Agent_Lite_V3.html', 'text/html');
-  }
-  else if(act === 'csv'){
+  } else if(act === 'csv'){
     const lines = ['keyword,text'];
     CANNED_STORE.forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
     triggerDownload(lines.join('\n'), 'Agent_Lite.csv', 'text/csv');
-  }
-  else if(act === 'favs'){
+  } else if(act === 'favs'){
     const favsData = CANNED_STORE.filter(i => FAV_KEYS.includes(i.keyword));
     triggerDownload(JSON.stringify(favsData, null, 2), 'Favorites_Backup.json', 'application/json');
   }
@@ -679,25 +736,18 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
-  if(!confirm('مسح كل البيانات؟')) return;
-  CANNED_STORE = []; FAV_KEYS = []; syncStorage(); runFilter();
-});
-
-/* =================================================================
-   COMPACT HUD (Live Clock -> 📸 -> ⏳ 2:00 -> Stopwatch 00:00)
-   ================================================================= */
+/* الوضع العائم المستقل PiP */
 const hudTemplateMarkup = `
   <div class="chrono-box">
     <div class="chrono-row">
-      <div id="liveClock" class="live-clock" title="ساعة الجهاز الفعلية">0:00:00</div>
-      <button id="chronoSnapAction" class="hud-btn snap" title="التقاط الشاشة الفوري">📸</button>
-      <button id="chronoHoldAction" class="hud-btn hold-btn" title="بدء / تصفير (2:00)">⏳ 2:00</button>
-      <div id="chronoDigits" class="chrono-digits" title="انقر للبدء / التصفير (Stopwatch)">00:00</div>
+      <div id="liveClock" class="live-clock">0:00:00</div>
+      <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة">📸</button>
+      <button id="chronoHoldAction" class="hud-btn hold-btn">⏳ 2:00</button>
+      <div id="chronoDigits" class="chrono-digits">00:00</div>
     </div>
   </div>
   <div class="hud-input-bar">
-    <input id="hudSearchInput" class="hud-search" placeholder="بحث ب أختصار الكاند..." autocomplete="off" autofocus />
+    <input id="hudSearchInput" class="hud-search" placeholder="بحث..." autocomplete="off" autofocus />
     <div id="hudAutoBadge" class="hud-autotag">⚡ Auto</div>
   </div>
   <div id="hudStreamContainer" class="hud-stream"></div>
@@ -706,110 +756,20 @@ const hudTemplateMarkup = `
 
 const hudStyles = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  ::-webkit-scrollbar { width: 3px; }
-  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-  body {
-    background: #06080d;
-    color: #e2e8f0;
-    font-family: system-ui, sans-serif;
-    padding: 3px;
-    user-select: none;
-    overflow-x: hidden;
-  }
-  .chrono-box { 
-    background: #0d121c; 
-    border: 1px solid #192333; 
-    border-radius: 8px; 
-    padding: 4px 6px; 
-    margin-bottom: 4px; 
-  }
-  .chrono-row { 
-    display: flex; 
-    flex-direction: row; 
-    justify-content: space-between; 
-    align-items: center; 
-    gap: 4px;
-  }
-  
-  .live-clock {
-    font-family: monospace;
-    font-size: 11px;
-    font-weight: 700;
-    color: #00e5ff;
-    background: #162030;
-    border: 1px solid #1e293b;
-    padding: 4px 5px;
-    border-radius: 5px;
-    white-space: nowrap;
-    line-height: 1.2;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
-  }
-
-  .hud-btn { 
-    border: none; 
-    background: #162030; 
-    color: #000; 
-    font-size: 11px; 
-    font-weight: 700; 
-    border-radius: 5px; 
-    cursor: pointer; 
-    transition: all 0.15s;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; padding: 0; font-size: 13px; }
-  .hud-btn.snap.active { border: 1px solid #00ffaa; box-shadow: 0 0 6px rgba(0, 255, 170, 0.4); }
-
-  .hud-btn.hold-btn { 
-    background: #00ffaa; 
-    color: #021a11; 
-    height: 26px; 
-    padding: 0 6px; 
-    font-size: 11px; 
-    font-family: monospace;
-    font-weight: 800;
-  }
-  .hud-btn.hold-btn.running {
-    background: #162030;
-    color: #00ffaa;
-    border: 1px solid #00ffaa;
-  }
-  .hud-btn.hold-btn.halt { 
-    background: #ff0055 !important; 
-    color: #fff !important; 
-    border-color: #ff0055 !important;
-    animation: blinker 0.6s infinite alternate;
-  }
-
-  .chrono-digits { 
-    font-family: monospace; 
-    font-size: 20px; 
-    font-weight: 700; 
-    color: #00e5ff; 
-    cursor: pointer; 
-    line-height: 1;
-    padding: 2px 4px;
-    border-radius: 4px;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .chrono-digits:hover { background: rgba(0, 229, 255, 0.15); }
-  .chrono-digits.active { color: #00ffaa; text-shadow: 0 0 10px rgba(0, 255, 170, 0.4); }
-  @keyframes blinker { from { opacity: 1; } to { opacity: 0.6; } }
-
+  body { background: #06080d; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 3px; user-select: none; }
+  .chrono-box { background: #0d121c; border: 1px solid #192333; border-radius: 8px; padding: 4px 6px; margin-bottom: 4px; }
+  .chrono-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .live-clock { font-family: monospace; font-size: 11px; font-weight: 700; color: #00e5ff; background: #162030; padding: 4px 5px; border-radius: 5px; }
+  .hud-btn { border: none; background: #162030; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; color: #fff; }
+  .hud-btn.hold-btn { background: #00ffaa; color: #021a11; height: 26px; padding: 0 6px; font-family: monospace; }
+  .chrono-digits { font-family: monospace; font-size: 20px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 2px 4px; }
+  .chrono-digits.active { color: #00ffaa; }
   .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; position: sticky; top: 0; background: #06080d; padding-bottom: 4px; z-index: 20; }
   .hud-search { flex: 1; background: #0d121c; border: 1px solid #192333; border-radius: 6px; color: #fff; padding: 5px 8px; font-size: 11.5px; outline: none; direction: rtl; }
-  .hud-search:focus { border-color: #00e5ff; }
-  .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 5px 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; }
-  .hud-autotag.off { background: #1e293b; color: #64748b; }
-
+  .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 5px 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; }
   .hud-stream { display: flex; flex-direction: column; gap: 4px; max-height: 380px; overflow-y: auto; direction: rtl; }
   .hud-item { background: #0d121c; border: 1px solid #162030; border-radius: 6px; padding: 6px; cursor: pointer; }
-  .hud-item:hover { background: #131a28; }
   .item-head { display: flex; justify-content: space-between; margin-bottom: 2px; }
   .item-kw { color: #00ffaa; font-family: monospace; font-size: 11px; font-weight: 700; }
   .item-clip { background: #00e5ff; color: #000; border: none; border-radius: 4px; font-size: 9.5px; font-weight: 700; padding: 1px 5px; cursor: pointer; }
@@ -820,306 +780,16 @@ const hudStyles = `
 dockModeBtn.addEventListener('click', async ()=>{
   if ('documentPictureInPicture' in window) {
     try {
-      const pipWin = await window.documentPictureInPicture.requestWindow({
-        width: 270,
-        height: 420,
-      });
-
+      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 270, height: 420 });
       const styleEl = pipWin.document.createElement('style');
       styleEl.textContent = hudStyles;
       pipWin.document.head.appendChild(styleEl);
       pipWin.document.body.innerHTML = hudTemplateMarkup;
-
-      initHudEngine(pipWin);
       return;
-    } catch(err) {
-      console.warn("PiP Error:", err);
-    }
+    } catch(err) {}
   }
   alert("يرجى استخدام متصفح Google Chrome محدّث للتمتع بالوضع العائم الحقيقي.");
 });
-
-function initHudEngine(win){
-  const d = win.document;
-  const chronoDigits = d.getElementById('chronoDigits');
-  const chronoHoldAction = d.getElementById('chronoHoldAction');
-  const chronoSnapAction = d.getElementById('chronoSnapAction');
-  const liveClock = d.getElementById('liveClock');
-  const hudSearchInput = d.getElementById('hudSearchInput');
-  const hudAutoBadge = d.getElementById('hudAutoBadge');
-  const hudStreamContainer = d.getElementById('hudStreamContainer');
-  const hudAlertToast = d.getElementById('hudAlertToast');
-
-  let stopwatchRunning = false;
-  let stopwatchElapsed = 0;
-  let stopwatchInterval = null;
-  let stopwatchStartTime = 0;
-
-  let holdRunning = false;
-  let holdRemaining = 120 * 1000;
-  let holdInterval = null;
-  let holdStartTime = 0;
-
-  let localAuto = AUTO_COPY_ACTIVE;
-  let hudDebounce = null;
-  let targetDirHandle = null;
-
-  let activeDisplayStream = null;
-  let activeImageCapture = null;
-
-  function updateLiveClock(){
-    const now = new Date();
-    const h = now.getHours();
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    liveClock.innerText = `${h}:${m}:${s}`;
-  }
-  updateLiveClock();
-  const clockInterval = win.setInterval(updateLiveClock, 1000);
-  win.addEventListener('unload', ()=>{
-    win.clearInterval(clockInterval);
-    if(activeDisplayStream){
-      activeDisplayStream.getTracks().forEach(t => t.stop());
-    }
-  });
-
-  function formatTime(ms){
-    const totalSecs = Math.floor(ms / 1000);
-    const m = Math.floor(totalSecs / 60);
-    const s = totalSecs % 60;
-    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-
-  function renderStopwatch(){
-    chronoDigits.innerHTML = formatTime(stopwatchElapsed);
-  }
-
-  function startStopwatch(){
-    stopwatchRunning = true;
-    chronoDigits.classList.add('active');
-    stopwatchStartTime = performance.now();
-    stopwatchInterval = win.setInterval(()=>{
-      const now = performance.now();
-      stopwatchElapsed += (now - stopwatchStartTime);
-      stopwatchStartTime = now;
-      renderStopwatch();
-    }, 200);
-  }
-
-  function resetStopwatch(){
-    stopwatchRunning = false;
-    win.clearInterval(stopwatchInterval);
-    stopwatchElapsed = 0;
-    chronoDigits.classList.remove('active');
-    renderStopwatch();
-  }
-
-  chronoDigits.addEventListener('click', ()=>{
-    if(stopwatchRunning){
-      resetStopwatch();
-    } else {
-      startStopwatch();
-    }
-  });
-
-  function renderHoldUI(){
-    chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
-    if(holdRemaining <= 15000 && holdRemaining > 0){
-      chronoHoldAction.classList.add('halt');
-    }
-  }
-
-  function startHold(){
-    holdRunning = true;
-    chronoHoldAction.className = 'hud-btn hold-btn running';
-    holdStartTime = performance.now();
-    renderHoldUI();
-    holdInterval = win.setInterval(()=>{
-      const now = performance.now();
-      holdRemaining -= (now - holdStartTime);
-      holdStartTime = now;
-
-      if(holdRemaining <= 0){
-        holdRemaining = 0;
-        resetHold();
-        triggerHudToast('انتهى وقت (2:00) 🔔');
-      } else {
-        renderHoldUI();
-      }
-    }, 200);
-  }
-
-  function resetHold(){
-    holdRunning = false;
-    win.clearInterval(holdInterval);
-    holdRemaining = 120 * 1000;
-    chronoHoldAction.className = 'hud-btn hold-btn';
-    chronoHoldAction.innerText = '⏳ 2:00';
-  }
-
-  chronoHoldAction.addEventListener('click', ()=>{
-    if(holdRunning){
-      resetHold();
-    } else {
-      startHold();
-    }
-  });
-
-  chronoSnapAction.addEventListener('click', async ()=>{
-    try {
-      if (!targetDirHandle && ('showDirectoryPicker' in win || 'showDirectoryPicker' in window)) {
-        const picker = win.showDirectoryPicker || window.showDirectoryPicker;
-        targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
-      }
-
-      if (!activeDisplayStream || !activeDisplayStream.active) {
-        activeDisplayStream = await win.navigator.mediaDevices.getDisplayMedia({
-          video: { 
-            cursor: "always",
-            displaySurface: "monitor"
-          },
-          audio: false,
-          monitorTypeSurfaces: "include",
-          surfaceSwitching: "exclude"
-        });
-        const track = activeDisplayStream.getVideoTracks()[0];
-        activeImageCapture = new ImageCapture(track);
-        chronoSnapAction.classList.add('active');
-
-        track.addEventListener('ended', ()=>{
-          activeDisplayStream = null;
-          activeImageCapture = null;
-          chronoSnapAction.classList.remove('active');
-        });
-      }
-
-      const bitmap = await activeImageCapture.grabFrame();
-      const canvas = d.createElement('canvas');
-      canvas.width = bitmap.width;
-      canvas.height = bitmap.height;
-      canvas.getContext('2d').drawImage(bitmap, 0, 0);
-
-      canvas.toBlob(async (blob)=>{
-        const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
-        if (targetDirHandle) {
-          try {
-            const fileHandle = await targetDirHandle.getFileHandle(fileName, { create: true });
-            const writable = await fileHandle.createWritable();
-            await writable.write(blob);
-            await writable.close();
-            triggerHudToast('تم الحفظ الفوري داخل المجلد ✅');
-            return;
-          } catch(e){}
-        }
-        const link = d.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = fileName;
-        link.click();
-        triggerHudToast('تم تنزيل الصورة 📸');
-      }, 'image/jpeg', 0.92);
-    } catch(err){
-      activeDisplayStream = null;
-      activeImageCapture = null;
-      chronoSnapAction.classList.remove('active');
-    }
-  });
-
-  win.addEventListener('keydown', (e)=>{
-    if(d.activeElement === hudSearchInput && e.code !== 'Escape') return;
-    if(e.code === 'Space'){ 
-      e.preventDefault(); 
-      if(stopwatchRunning) resetStopwatch(); else startStopwatch();
-    } else if(e.code === 'KeyR'){ 
-      e.preventDefault(); 
-      resetStopwatch();
-      resetHold();
-    }
-  });
-
-  hudAutoBadge.addEventListener('click', ()=>{
-    localAuto = !localAuto;
-    AUTO_COPY_ACTIVE = localAuto;
-    hudAutoBadge.className = 'hud-autotag ' + (localAuto ? '' : 'off');
-    hudAutoBadge.innerText = localAuto ? '⚡ Auto' : '✋ يدوي';
-    updateAutoCopyButtonState();
-    syncStorage();
-  });
-
-  function triggerHudToast(msg){
-    hudAlertToast.innerText = msg;
-    hudAlertToast.style.display = 'block';
-    setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
-  }
-
-  async function copyFromHud(text, label){
-    try {
-      await win.navigator.clipboard.writeText(text);
-      triggerHudToast(label || 'تم النسخ ✅');
-    } catch(e){}
-  }
-
-  function renderHudStream(list){
-    hudStreamContainer.innerHTML = '';
-    list.slice(0, 35).forEach(item => {
-      const card = d.createElement('div');
-      card.className = 'hud-item';
-      card.innerHTML = `
-        <div class="item-head">
-          <span class="item-kw">#${escapeEntities(item.keyword)}</span>
-          <button class="item-clip">نسخ</button>
-        </div>
-        <div class="item-snippet">${escapeEntities(item.text)}</div>
-      `;
-      card.addEventListener('click', ()=>{
-        copyFromHud(item.text, `تم نسخ: ${item.keyword}`);
-        hudSearchInput.value = '';
-        renderHudStream(CANNED_STORE);
-      });
-      card.querySelector('.item-clip').addEventListener('click', (e)=>{
-        e.stopPropagation();
-        copyFromHud(item.text, `تم نسخ: ${item.keyword}`);
-        hudSearchInput.value = '';
-        renderHudStream(CANNED_STORE);
-      });
-      hudStreamContainer.appendChild(card);
-    });
-  }
-
-  renderHudStream(CANNED_STORE);
-
-  hudSearchInput.addEventListener('input', ()=>{
-    if(hudDebounce) clearTimeout(hudDebounce);
-    const val = hudSearchInput.value.trim().toLowerCase();
-    if(!val){ renderHudStream(CANNED_STORE); return; }
-
-    const filtered = CANNED_STORE.filter(i => i.keyword.toLowerCase().includes(val));
-    renderHudStream(filtered);
-
-    if(localAuto){
-      hudDebounce = setTimeout(()=>{
-        const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
-        if(match){
-          copyFromHud(match.text, `⚡ تم نسخ: ${match.keyword}`);
-          hudSearchInput.value = '';
-          renderHudStream(CANNED_STORE);
-        }
-      }, 500);
-    }
-  });
-
-  hudSearchInput.addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter'){
-      const val = hudSearchInput.value.trim().toLowerCase();
-      const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
-      if(match){
-        if(hudDebounce) clearTimeout(hudDebounce);
-        copyFromHud(match.text, `⚡ تم نسخ: ${match.keyword}`);
-        hudSearchInput.value = '';
-        renderHudStream(CANNED_STORE);
-      }
-    }
-  });
-}
 
 runFilter();
 </script>
