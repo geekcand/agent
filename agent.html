@@ -654,7 +654,7 @@ exportDropMenu.addEventListener('click', (e)=>{
         enabled: true
       }))
     };
-    triggerDownload(JSON.stringify(btPayload, null, 2), 'Beeftext last update 9-2026.btbackup', 'application/json');
+    triggerDownload(JSON.stringify(btPayload, null, 2), 'Beeftext last update.btbackup', 'application/json');
     flashToast('تم تصدير نسخة Beeftext بنجاح 💾');
   }
   else if(act === 'html'){
