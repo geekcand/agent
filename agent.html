@@ -3,10 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Agent Lite V2 • By Geek</title>
-<link rel="icon" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTExfvSNAObTWSCRE7ukuCyTnVeBE_ypQVVQ8_XA7LWcg4o8LtSylcofJA&s=10">
+<title>Canned Lite V3 • By Geek</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -242,8 +241,8 @@
     <div class="brand-group">
       <span class="brand-chip">&lt;/&gt; V2.0</span>
       <div>
-        <h1 class="brand-title">Agent Lite <span>V2</span></h1>
-        <div class="brand-by">Developed By Geek • version 2</div>
+        <h1 class="brand-title">Canned Lite <span>V2</span></h1>
+        <div class="brand-by">Developed By Geek • version 3</div>
       </div>
     </div>
     <div>
@@ -566,22 +565,16 @@ document.getElementById('jsonUpload').addEventListener('change', (e)=>{
   reader.readAsText(file);
 });
 
-/* Export Suite - تم إصلاح دعم تصدير المفضلة هنا */
+/* Export Suite */
 exportDropBtn.addEventListener('click', (e)=>{ e.stopPropagation(); exportDropMenu.classList.toggle('show'); });
 document.addEventListener('click', ()=> exportDropMenu.classList.remove('show'));
 exportDropMenu.addEventListener('click', (e)=>{
   const act = e.target.dataset.act;
-  if(act === 'html') {
-    triggerDownload(document.documentElement.outerHTML, 'Canned_Lite_V2.html', 'text/html');
-  } else if(act === 'csv'){
+  if(act === 'html') triggerDownload(document.documentElement.outerHTML, 'Canned_Lite_V2.html', 'text/html');
+  else if(act === 'csv'){
     const lines = ['keyword,text'];
     CANNED_STORE.forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
     triggerDownload(lines.join('\n'), 'Canned_Lite.csv', 'text/csv');
-  } else if(act === 'favs'){
-    const lines = ['keyword,text'];
-    CANNED_STORE.filter(i => FAV_KEYS.includes(i.keyword))
-      .forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
-    triggerDownload(lines.join('\n'), 'Canned_Favorites.csv', 'text/csv');
   }
 });
 
@@ -599,13 +592,14 @@ document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
 });
 
 /* =================================================================
-   COMPACT HUD
+   COMPACT HUD (Live Clock -> 📸 -> ⏳ 2:00 -> Stopwatch 00:00)
+   مع فرض Entire Screen والالتقاط المباشر
    ================================================================= */
 const hudTemplateMarkup = `
   <div class="chrono-box">
     <div class="chrono-row">
       <div id="liveClock" class="live-clock" title="ساعة الجهاز الفعلية">0:00:00</div>
-      <button id="chronoSnapAction" class="hud-btn snap" title="التقاط الشاشة">📸</button>
+      <button id="chronoSnapAction" class="hud-btn snap" title="التقاط الشاشة الفوري">📸</button>
       <button id="chronoHoldAction" class="hud-btn hold-btn" title="بدء / تصفير (2:00)">⏳ 2:00</button>
       <div id="chronoDigits" class="chrono-digits" title="انقر للبدء / التصفير (Stopwatch)">00:00</div>
     </div>
@@ -676,7 +670,8 @@ const hudStyles = `
     flex-shrink: 0;
   }
   .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; padding: 0; font-size: 13px; }
-  
+  .hud-btn.snap.active { border: 1px solid #00ffaa; box-shadow: 0 0 6px rgba(0, 255, 170, 0.4); }
+
   .hud-btn.hold-btn { 
     background: #00ffaa; 
     color: #021a11; 
@@ -777,6 +772,9 @@ function initHudEngine(win){
   let hudDebounce = null;
   let targetDirHandle = null;
 
+  let activeDisplayStream = null;
+  let activeImageCapture = null;
+
   function updateLiveClock(){
     const now = new Date();
     const h = now.getHours();
@@ -786,12 +784,11 @@ function initHudEngine(win){
   }
   updateLiveClock();
   const clockInterval = win.setInterval(updateLiveClock, 1000);
-
-  // تنظيف شامل لجميع المؤقتات عند إغلاق النافذة العائمة
-  win.addEventListener('pagehide', ()=>{
+  win.addEventListener('unload', ()=>{
     win.clearInterval(clockInterval);
-    if(stopwatchInterval) win.clearInterval(stopwatchInterval);
-    if(holdInterval) win.clearInterval(holdInterval);
+    if(activeDisplayStream){
+      activeDisplayStream.getTracks().forEach(t => t.stop());
+    }
   });
 
   function formatTime(ms){
@@ -853,6 +850,7 @@ function initHudEngine(win){
       if(holdRemaining <= 0){
         holdRemaining = 0;
         resetHold();
+        triggerHudToast('انتهى وقت (2:00) 🔔');
       } else {
         renderHoldUI();
       }
@@ -875,45 +873,41 @@ function initHudEngine(win){
     }
   });
 
-  /* آلية التقاط الشاشة المضمونة والخالية من أخطاء ImageCapture */
   chronoSnapAction.addEventListener('click', async ()=>{
-    let stream = null;
     try {
       if (!targetDirHandle && ('showDirectoryPicker' in win || 'showDirectoryPicker' in window)) {
         const picker = win.showDirectoryPicker || window.showDirectoryPicker;
         targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
       }
-      
-      stream = await win.navigator.mediaDevices.getDisplayMedia({ 
-        video: { cursor: "always" }, 
-        audio: false 
-      });
 
-      const video = d.createElement('video');
-      video.srcObject = stream;
+      if (!activeDisplayStream || !activeDisplayStream.active) {
+        activeDisplayStream = await win.navigator.mediaDevices.getDisplayMedia({
+          video: { 
+            cursor: "always",
+            displaySurface: "monitor"
+          },
+          audio: false,
+          monitorTypeSurfaces: "include",
+          surfaceSwitching: "exclude"
+        });
+        const track = activeDisplayStream.getVideoTracks()[0];
+        activeImageCapture = new ImageCapture(track);
+        chronoSnapAction.classList.add('active');
 
-      await new Promise((resolve) => {
-        video.onloadedmetadata = async () => {
-          try {
-            await video.play();
-            resolve();
-          } catch(e) {
-            resolve();
-          }
-        };
-      });
+        track.addEventListener('ended', ()=>{
+          activeDisplayStream = null;
+          activeImageCapture = null;
+          chronoSnapAction.classList.remove('active');
+        });
+      }
 
+      const bitmap = await activeImageCapture.grabFrame();
       const canvas = d.createElement('canvas');
-      canvas.width = video.videoWidth || 1920;
-      canvas.height = video.videoHeight || 1080;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // إيقاف بث الفيديو فور التقاط الفريم
-      stream.getTracks().forEach(track => track.stop());
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      canvas.getContext('2d').drawImage(bitmap, 0, 0);
 
       canvas.toBlob(async (blob)=>{
-        if(!blob) return;
         const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
         if (targetDirHandle) {
           try {
@@ -921,7 +915,7 @@ function initHudEngine(win){
             const writable = await fileHandle.createWritable();
             await writable.write(blob);
             await writable.close();
-            triggerHudToast('تم الحفظ داخل Attach ✅');
+            triggerHudToast('تم الحفظ الفوري داخل المجلد ✅');
             return;
           } catch(e){}
         }
@@ -929,14 +923,12 @@ function initHudEngine(win){
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
         link.click();
-        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
         triggerHudToast('تم تنزيل الصورة 📸');
       }, 'image/jpeg', 0.92);
-
     } catch(err){
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      activeDisplayStream = null;
+      activeImageCapture = null;
+      chronoSnapAction.classList.remove('active');
     }
   });
 
