@@ -754,7 +754,7 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-/* الوضع العائم المستقل PiP */
+/* الوضع العائم المستقل PiP مع تفعيل اختيار مجلد الحفظ المباشر ووضع Entire Screen */
 const hudTemplateMarkup = `
   <div class="chrono-box">
     <div class="chrono-row">
@@ -781,11 +781,14 @@ const hudStyles = `
   .hud-btn { border: none; background: #162030; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; color: #fff; }
   .hud-btn.hold-btn { background: #00ffaa; color: #021a11; height: 26px; padding: 0 6px; font-family: monospace; }
+  .hud-btn.hold-btn.running { background: #162030; color: #00ffaa; border: 1px solid #00ffaa; }
+  .hud-btn.hold-btn.halt { background: #ff0055 !important; color: #fff !important; }
   .chrono-digits { font-family: monospace; font-size: 20px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 2px 4px; }
   .chrono-digits.active { color: #00ffaa; }
   .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; position: sticky; top: 0; background: #06080d; padding-bottom: 4px; z-index: 20; }
   .hud-search { flex: 1; background: #0d121c; border: 1px solid #192333; border-radius: 6px; color: #fff; padding: 5px 8px; font-size: 11.5px; outline: none; direction: rtl; }
   .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 5px 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; }
+  .hud-autotag.off { background: #1e293b; color: #64748b; }
   .hud-stream { display: flex; flex-direction: column; gap: 4px; max-height: 380px; overflow-y: auto; direction: rtl; }
   .hud-item { background: #0d121c; border: 1px solid #162030; border-radius: 6px; padding: 6px; cursor: pointer; }
   .item-head { display: flex; justify-content: space-between; margin-bottom: 2px; }
@@ -804,19 +807,141 @@ dockModeBtn.addEventListener('click', async ()=>{
       pipWin.document.head.appendChild(styleEl);
       pipWin.document.body.innerHTML = hudTemplateMarkup;
 
-      // ربط دالة وسحب الكندات داخل نافذة PiP بـ CANNED_STORE الفعلية
       const pipDoc = pipWin.document;
+      const chronoDigits = pipDoc.getElementById('chronoDigits');
+      const chronoHoldAction = pipDoc.getElementById('chronoHoldAction');
+      const chronoSnapAction = pipDoc.getElementById('chronoSnapAction');
+      const liveClock = pipDoc.getElementById('liveClock');
       const hudSearchInput = pipDoc.getElementById('hudSearchInput');
-      const hudStreamContainer = pipDoc.getElementById('hudStreamContainer');
       const hudAutoBadge = pipDoc.getElementById('hudAutoBadge');
+      const hudStreamContainer = pipDoc.getElementById('hudStreamContainer');
       const hudAlertToast = pipDoc.getElementById('hudAlertToast');
 
+      let targetDirHandle = null;
+
+      // 1. تشغيل الساعة الحية
+      function updateLiveClock(){
+        const now = new Date();
+        liveClock.innerText = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      }
+      updateLiveClock();
+      const clockInterval = pipWin.setInterval(updateLiveClock, 1000);
+      pipWin.addEventListener('unload', ()=> pipWin.clearInterval(clockInterval));
+
+      // 2. تشغيل الـ Stopwatch (التايمر)
+      let stopwatchRunning = false, stopwatchElapsed = 0, stopwatchInterval = null, stopwatchStartTime = 0;
+      function formatTime(ms){
+        const totalSecs = Math.floor(ms / 1000);
+        return `${String(Math.floor(totalSecs / 60)).padStart(2,'0')}:${String(totalSecs % 60).padStart(2,'0')}`;
+      }
+      chronoDigits.addEventListener('click', ()=>{
+        if(stopwatchRunning){
+          stopwatchRunning = false;
+          pipWin.clearInterval(stopwatchInterval);
+          stopwatchElapsed = 0;
+          chronoDigits.classList.remove('active');
+          chronoDigits.innerText = "00:00";
+        } else {
+          stopwatchRunning = true;
+          chronoDigits.classList.add('active');
+          stopwatchStartTime = performance.now();
+          stopwatchInterval = pipWin.setInterval(()=>{
+            const now = performance.now();
+            stopwatchElapsed += (now - stopwatchStartTime);
+            stopwatchStartTime = now;
+            chronoDigits.innerText = formatTime(stopwatchElapsed);
+          }, 200);
+        }
+      });
+
+      // 3. تشغيل الـ Hold (2:00)
+      let holdRunning = false, holdRemaining = 120 * 1000, holdInterval = null, holdStartTime = 0;
+      function renderHoldUI(){
+        chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
+        if(holdRemaining <= 15000) chronoHoldAction.classList.add('halt');
+      }
+      chronoHoldAction.addEventListener('click', ()=>{
+        if(holdRunning){
+          holdRunning = false;
+          pipWin.clearInterval(holdInterval);
+          holdRemaining = 120 * 1000;
+          chronoHoldAction.className = 'hud-btn hold-btn';
+          chronoHoldAction.innerText = '⏳ 2:00';
+        } else {
+          holdRunning = true;
+          chronoHoldAction.className = 'hud-btn hold-btn running';
+          holdStartTime = performance.now();
+          holdInterval = pipWin.setInterval(()=>{
+            const now = performance.now();
+            holdRemaining -= (now - holdStartTime);
+            holdStartTime = now;
+            if(holdRemaining <= 0){
+              holdRemaining = 0;
+              pipWin.clearInterval(holdInterval);
+              holdRunning = false;
+              chronoHoldAction.className = 'hud-btn hold-btn';
+              chronoHoldAction.innerText = '⏳ 2:00';
+            } else {
+              renderHoldUI();
+            }
+          }, 200);
+        }
+      });
+
+      // 4. تشغيل الاسكرين شوت (مع اختيار مجلد الحفظ و Entire Screen تلقائياً)
+      chronoSnapAction.addEventListener('click', async ()=>{
+        try {
+          if (!targetDirHandle && ('showDirectoryPicker' in pipWin || 'showDirectoryPicker' in window)) {
+            const picker = pipWin.showDirectoryPicker || window.showDirectoryPicker;
+            targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
+          }
+
+          const stream = await pipWin.navigator.mediaDevices.getDisplayMedia({
+            video: { displaySurface: "monitor" },
+            audio: false,
+            monitorTypeSurfaces: "include",
+            surfaceSwitching: "exclude"
+          });
+
+          const track = stream.getVideoTracks()[0];
+          const imageCapture = new ImageCapture(track);
+          const bitmap = await imageCapture.grabFrame();
+          
+          track.stop(); // إيقاف العرض فور التقاط الإطار
+
+          const canvas = pipDoc.createElement('canvas');
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          canvas.getContext('2d').drawImage(bitmap, 0, 0);
+
+          canvas.toBlob(async (blob)=>{
+            const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
+            if (targetDirHandle) {
+              try {
+                const fileHandle = await targetDirHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                triggerPipToast('تم الحفظ الفوري في المجلد ✅');
+                return;
+              } catch(e){}
+            }
+            const link = pipDoc.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            triggerPipToast('تم التقاط الشاشة 📸');
+          }, 'image/jpeg', 0.92);
+        } catch(err){
+          console.warn("Screenshot canceled or error:", err);
+        }
+      });
+
+      // 5. ربط الكندات والبحث
       let pipAutoCopy = AUTO_COPY_ACTIVE;
       let pipDebounce = null;
-
       hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
       hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
-
       hudAutoBadge.addEventListener('click', ()=>{
         pipAutoCopy = !pipAutoCopy;
         hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
@@ -826,7 +951,7 @@ dockModeBtn.addEventListener('click', async ()=>{
       function triggerPipToast(msg){
         hudAlertToast.innerText = msg;
         hudAlertToast.style.display = 'block';
-        setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
+        pipWin.setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
       }
 
       async function copyFromPip(text, label){
@@ -874,7 +999,7 @@ dockModeBtn.addEventListener('click', async ()=>{
         renderPipStream(filtered);
 
         if(pipAutoCopy){
-          pipDebounce = setTimeout(()=>{
+          pipDebounce = pipWin.setTimeout(()=>{
             const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
             if(match){
               copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
@@ -890,7 +1015,7 @@ dockModeBtn.addEventListener('click', async ()=>{
           const val = hudSearchInput.value.trim().toLowerCase();
           const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
           if(match){
-            if(pipDebounce) clearTimeout(pipDebounce);
+            if(pipDebounce) pipWin.clearTimeout(pipDebounce);
             copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
             hudSearchInput.value = '';
             renderPipStream(CANNED_STORE);
