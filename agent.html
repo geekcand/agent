@@ -211,7 +211,7 @@
   .action-btn:hover { color: #fff; background: var(--bg-hover); }
   .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
 
-  /* About & Contact Compact View */
+  /* About & Contact View */
   .view-container { display: flex; flex-direction: column; gap: 20px; }
   .view-container.hidden-view { display: none; }
 
@@ -388,7 +388,7 @@
     </div>
   </header>
 
-  <!-- الصفحة الرئيسية (الأدوات والاختصارات) -->
+  <!-- الصفحة الرئيسية -->
   <div id="mainDashboardView" class="view-container">
     <nav class="control-bay">
       <div class="bay-left">
@@ -437,7 +437,7 @@
     <main id="cannedGrid" class="data-board"></main>
   </div>
 
-  <!-- صفحة About and Contact بالحجم المصغر لتناسب شاشة واحدة -->
+  <!-- صفحة About and Contact -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
       <h2>About Agent Lite V3</h2>
@@ -478,7 +478,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-  // حماية صارمة تمنع الحفظ نهائياً (Ctrl + S أو طباعة أو فحص)
   window.addEventListener('keydown', function(e) {
     if (
       e.key === 'F12' || 
@@ -496,17 +495,22 @@
     alert("الطباعة والحفظ معطلان تماماً في هذه الأداة 🛡️");
   });
 
+// دالة تطبيع موحدة للاختصارات لإزالة الرموز والمسافات الزائدة بدقة
+function normalizeKey(str){
+  return (str || '').toString().trim().toLowerCase().replace(/^[#\/]/, '');
+}
+
 let CANNED_STORE = JSON.parse(localStorage.getItem('canned_v2_data') || '[]').map(item => ({
   keyword: (item.keyword || item.code || '').trim(),
   text: (item.text || item.snippet || '').trim()
-}));
+})).filter(i => i.keyword && i.text);
 
 if(!CANNED_STORE.length && localStorage.getItem('phrases_data')){
   try {
     CANNED_STORE = JSON.parse(localStorage.getItem('phrases_data')).map(p => ({
       keyword: (p.keyword || p.code || '').trim(),
       text: (p.text || '').trim()
-    }));
+    })).filter(i => i.keyword && i.text);
   } catch(e){}
 }
 
@@ -534,7 +538,6 @@ const exportDropMenu = document.getElementById('exportDropMenu');
 const globalToast = document.getElementById('globalToast');
 const toastMessage = document.getElementById('toastMessage');
 
-// تبديل العرض بين لوحة الأدوات وصفحة About & Contact
 aboutViewBtn.addEventListener('click', ()=>{
   const isHidden = aboutPageView.classList.contains('hidden-view');
   if(isHidden){
@@ -674,7 +677,8 @@ createSnippetBtn.addEventListener('click', ()=>{
 function runFilter(){
   if(globalDebounce) clearTimeout(globalDebounce);
 
-  const rawVal = queryInput.value.trim().toLowerCase();
+  const rawVal = queryInput.value.trim();
+  const searchVal = normalizeKey(rawVal);
   const scope = queryScope.value;
   queryReset.style.display = rawVal.length ? 'block' : 'none';
 
@@ -682,10 +686,16 @@ function runFilter(){
   if(ONLY_FAV_FILTER) workingSet = workingSet.filter(i => FAV_KEYS.includes(i.keyword));
 
   if(rawVal.length){
-    if(AUTO_COPY_ACTIVE){
+    // لن يتم فحص النسخ التلقائي إلا إذا كان الإدخال يتطابق تطابقاً تاماً وبدقة
+    if(AUTO_COPY_ACTIVE && searchVal.length > 0){
       globalDebounce = setTimeout(()=>{
-        const match = workingSet.find(i => i.keyword.toLowerCase() === rawVal);
-        if(match){
+        const match = workingSet.find(i => {
+          const k = normalizeKey(i.keyword);
+          return k === searchVal;
+        });
+        
+        // التحقق الإضافي: لا تنسخ إلا إذا كان الإدخال الحالي ما زال مطابقاً تماماً
+        if(match && normalizeKey(queryInput.value) === normalizeKey(match.keyword)){
           copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
           queryInput.value = '';
           runFilter();
@@ -694,8 +704,8 @@ function runFilter(){
     }
 
     workingSet = workingSet.filter(i => {
-      const matchKey = i.keyword.toLowerCase().includes(rawVal);
-      const matchText = i.text.toLowerCase().includes(rawVal);
+      const matchKey = normalizeKey(i.keyword).includes(searchVal);
+      const matchText = i.text.toLowerCase().includes(rawVal.toLowerCase());
       if(scope === 'keyword') return matchKey;
       if(scope === 'text') return matchText;
       return matchKey || matchText;
@@ -708,6 +718,68 @@ function runFilter(){
 queryInput.addEventListener('input', runFilter);
 queryScope.addEventListener('change', runFilter);
 queryReset.addEventListener('click', ()=>{ queryInput.value = ''; runFilter(); });
+
+// استيراد ملفات الإكسل
+document.getElementById('excelUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      let added = 0;
+      rows.forEach(r => {
+        const keys = Object.keys(r);
+        const kField = keys.find(k => /^(keyword|code|اختصار|مفتاح)$/i.test(k.trim())) || keys[0];
+        const tField = keys.find(k => /^(text|phrase|snippet|العبارة|النص)$/i.test(k.trim())) || keys[1];
+        const kw = kField ? String(r[kField]).trim() : '';
+        const txt = tField ? String(r[tField]).trim() : '';
+        if(kw && txt && !CANNED_STORE.some(x => normalizeKey(x.keyword) === normalizeKey(kw))){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+          added++;
+        }
+      });
+      syncStorage();
+      runFilter();
+      flashToast(`تم استيراد ${added} اختصار من الإكسل بنجاح ✅`);
+    } catch(err){
+      flashToast('حدث خطأ أثناء قراءة ملف الإكسل ❌');
+    }
+    e.target.value = '';
+  };
+  reader.readAsBinaryString(file);
+});
+
+// استيراد ملفات Backup
+document.getElementById('jsonUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      const dataset = parsed.combos || (Array.isArray(parsed) ? parsed : []);
+      let added = 0;
+      dataset.forEach(entry => {
+        const kw = (entry.keyword || entry.code || entry.name || '').trim();
+        const txt = (entry.snippet || entry.text || '').trim();
+        if(kw && txt && !CANNED_STORE.some(x => normalizeKey(x.keyword) === normalizeKey(kw))){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+          added++;
+        }
+      });
+      syncStorage();
+      runFilter();
+      flashToast(`تم استيراد ${added} اختصار بنجاح ✅`);
+    } catch(err){
+      flashToast('تعذر قراءة ملف النسخة الاحتياطية ❌');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
 
 document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
   if(!confirm('مسح كل البيانات؟')) return;
@@ -754,7 +826,7 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-/* الوضع العائم المستقل PiP مع إخفاء محتوى الـ PiP تماماً (opacity 0) لكي لا تظهر بالصورة وتظل النافذة مفتوحة */
+/* الوضع العائم المستقل PiP */
 const hudTemplateMarkup = `
   <div class="chrono-box" id="hudMainBox">
     <div class="chrono-row">
@@ -765,7 +837,7 @@ const hudTemplateMarkup = `
     </div>
   </div>
   <div class="hud-input-bar" id="hudInputBar">
-    <input id="hudSearchInput" class="hud-search" placeholder="بحث..." autocomplete="off" autofocus />
+    <input id="hudSearchInput" class="hud-search" placeholder="بحث ب أختصار الكاند..." autocomplete="off" autofocus />
     <div id="hudAutoBadge" class="hud-autotag">⚡ Auto</div>
   </div>
   <div id="hudStreamContainer" class="hud-stream"></div>
@@ -822,7 +894,6 @@ dockModeBtn.addEventListener('click', async ()=>{
       let activeDisplayStream = null;
       let activeImageCapture = null;
 
-      // 1. تشغيل الساعة الحية
       function updateLiveClock(){
         const now = new Date();
         liveClock.innerText = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -834,7 +905,6 @@ dockModeBtn.addEventListener('click', async ()=>{
         if(activeDisplayStream) activeDisplayStream.getTracks().forEach(t => t.stop());
       });
 
-      // 2. تشغيل الـ Stopwatch (التايمر)
       let stopwatchRunning = false, stopwatchElapsed = 0, stopwatchInterval = null, stopwatchStartTime = 0;
       function formatTime(ms){
         const totalSecs = Math.floor(ms / 1000);
@@ -852,15 +922,13 @@ dockModeBtn.addEventListener('click', async ()=>{
           chronoDigits.classList.add('active');
           stopwatchStartTime = performance.now();
           stopwatchInterval = pipWin.setInterval(()=>{
-            const now = performance.now();
-            stopwatchElapsed += (now - stopwatchStartTime);
-            stopwatchStartTime = now;
+            stopwatchElapsed += (performance.now() - stopwatchStartTime);
+            stopwatchStartTime = performance.now();
             chronoDigits.innerText = formatTime(stopwatchElapsed);
           }, 200);
         }
       });
 
-      // 3. تشغيل الـ Hold (2:00)
       let holdRunning = false, holdRemaining = 120 * 1000, holdInterval = null, holdStartTime = 0;
       function renderHoldUI(){
         chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
@@ -878,9 +946,8 @@ dockModeBtn.addEventListener('click', async ()=>{
           chronoHoldAction.className = 'hud-btn hold-btn running';
           holdStartTime = performance.now();
           holdInterval = pipWin.setInterval(()=>{
-            const now = performance.now();
-            holdRemaining -= (now - holdStartTime);
-            holdStartTime = now;
+            holdRemaining -= (performance.now() - holdStartTime);
+            holdStartTime = performance.now();
             if(holdRemaining <= 0){
               holdRemaining = 0;
               pipWin.clearInterval(holdInterval);
@@ -894,7 +961,6 @@ dockModeBtn.addEventListener('click', async ()=>{
         }
       });
 
-      // 4. التقاط الشاشة كاملة وإخفاء محتوى الـ PiP تماماً (Opacity: 0) قبل الالتقاط لكي لا تظهر بالصورة نهائياً
       chronoSnapAction.addEventListener('click', async ()=>{
         try {
           if (!targetDirHandle && ('showDirectoryPicker' in pipWin || 'showDirectoryPicker' in window)) {
@@ -918,13 +984,10 @@ dockModeBtn.addEventListener('click', async ()=>{
             });
           }
 
-          // إخفاء نافذة الـ PiP تماماً قبل أخذ لقطة الشاشة
           pipDoc.body.style.opacity = '0';
           await new Promise(r => pipWin.setTimeout(r, 200));
 
           const bitmap = await activeImageCapture.grabFrame();
-
-          // إعادة إظهار نافذة الـ PiP بعد اكتمال اللقطة
           pipDoc.body.style.opacity = '1';
 
           const canvas = pipDoc.createElement('canvas');
@@ -958,7 +1021,6 @@ dockModeBtn.addEventListener('click', async ()=>{
         }
       });
 
-      // 5. ربط الكندات والبحث
       let pipAutoCopy = AUTO_COPY_ACTIVE;
       let pipDebounce = null;
       hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
@@ -1012,17 +1074,20 @@ dockModeBtn.addEventListener('click', async ()=>{
       renderPipStream(CANNED_STORE);
 
       hudSearchInput.addEventListener('input', ()=>{
-        if(pipDebounce) clearTimeout(pipDebounce);
-        const val = hudSearchInput.value.trim().toLowerCase();
-        if(!val){ renderPipStream(CANNED_STORE); return; }
+        if(pipDebounce) pipWin.clearTimeout(pipDebounce);
+        const rawVal = hudSearchInput.value.trim();
+        const searchVal = normalizeKey(rawVal);
+        if(!rawVal){ renderPipStream(CANNED_STORE); return; }
 
-        const filtered = CANNED_STORE.filter(i => i.keyword.toLowerCase().includes(val) || i.text.toLowerCase().includes(val));
+        // الفلترة في القائمة تظهر كل ما يحتوي على الحروف
+        const filtered = CANNED_STORE.filter(i => normalizeKey(i.keyword).includes(searchVal) || i.text.toLowerCase().includes(rawVal.toLowerCase()));
         renderPipStream(filtered);
 
-        if(pipAutoCopy){
+        // النسخ التلقائي: لا ينسخ إلا عند التطابق التام الكامل للاختصار
+        if(pipAutoCopy && searchVal.length > 0){
           pipDebounce = pipWin.setTimeout(()=>{
-            const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
-            if(match){
+            const match = CANNED_STORE.find(i => normalizeKey(i.keyword) === searchVal);
+            if(match && normalizeKey(hudSearchInput.value) === normalizeKey(match.keyword)){
               copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
               hudSearchInput.value = '';
               renderPipStream(CANNED_STORE);
@@ -1033,8 +1098,9 @@ dockModeBtn.addEventListener('click', async ()=>{
 
       hudSearchInput.addEventListener('keydown', (e)=>{
         if(e.key === 'Enter'){
-          const val = hudSearchInput.value.trim().toLowerCase();
-          const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
+          const rawVal = hudSearchInput.value.trim();
+          const searchVal = normalizeKey(rawVal);
+          const match = CANNED_STORE.find(i => normalizeKey(i.keyword) === searchVal);
           if(match){
             if(pipDebounce) pipWin.clearTimeout(pipDebounce);
             copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
