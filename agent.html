@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Agent Lite V3 • By Geek</title>
 <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4017/4017991.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -378,7 +378,7 @@
     <div class="brand-group">
       <span class="brand-chip">&lt;/&gt; V3.0</span>
       <div>
-        <h1 class="brand-title">Agent Lite <span>V3</span></h1>
+        <h1 class="brand-title">Agent Lite <span></span></h1>
       </div>
     </div>
     <div style="display: flex; gap: 10px; align-items: center;">
@@ -439,7 +439,7 @@
   <!-- صفحة About and Contact -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
-      <h2>About Agent Lite V3</h2>
+      <h2>About Agent Lite Tool</h2>
       <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
       
       <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; text-align: center;">: Integrated Tools Directory</div>
@@ -475,21 +475,34 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-  window.addEventListener('keydown', function(e) {
-    if (
-      e.key === 'F12' || 
-      (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) ||
-      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c'))
-    ) {
+  // حماية صارمة مطلقة لمنع الحفظ (Ctrl+S / Cmd+S) وفحص العناصر نهائياً
+  document.addEventListener('keydown', function(e) {
+    const key = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && (key === 's' || e.keyCode === 83)) {
       e.preventDefault();
-      alert("هذه الصفحة محمية بالكامل لمنع الحفظ أو النسخ 🛡️");
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      alert("هذه الصفحة محمية بالكامل لمنع الحفظ 🛡️");
       return false;
     }
-  });
+  }, true);
+
+  window.addEventListener('keydown', function(e) {
+    const key = e.key.toLowerCase();
+    if (
+      e.key === 'F12' || 
+      ((e.ctrlKey || e.metaKey) && (key === 'p' || key === 'u' || key === 'i' || key === 'j' || key === 'c')) ||
+      (e.ctrlKey && e.shiftKey)
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return false;
+    }
+  }, true);
 
   window.addEventListener('beforeprint', function(e) {
     e.preventDefault();
-    alert("الطباعة والحفظ معطلان تماماً في هذه الأداة 🛡️");
   });
 
 // دالة تطبيع موحدة للاختصارات لإزالة الرموز والمسافات الزائدة بدقة
@@ -683,7 +696,6 @@ function runFilter(){
   if(ONLY_FAV_FILTER) workingSet = workingSet.filter(i => FAV_KEYS.includes(i.keyword));
 
   if(rawVal.length){
-    // لن يتم فحص النسخ التلقائي إلا إذا كان الإدخال يتطابق تطابقاً تاماً وبدقة
     if(AUTO_COPY_ACTIVE && searchVal.length > 0){
       globalDebounce = setTimeout(()=>{
         const match = workingSet.find(i => {
@@ -691,7 +703,6 @@ function runFilter(){
           return k === searchVal;
         });
         
-        // التحقق الإضافي: لا تنسخ إلا إذا كان الإدخال الحالي ما زال مطابقاً تماماً
         if(match && normalizeKey(queryInput.value) === normalizeKey(match.keyword)){
           copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
           queryInput.value = '';
@@ -1076,11 +1087,9 @@ dockModeBtn.addEventListener('click', async ()=>{
         const searchVal = normalizeKey(rawVal);
         if(!rawVal){ renderPipStream(CANNED_STORE); return; }
 
-        // الفلترة في القائمة تظهر كل ما يحتوي على الحروف
         const filtered = CANNED_STORE.filter(i => normalizeKey(i.keyword).includes(searchVal) || i.text.toLowerCase().includes(rawVal.toLowerCase()));
         renderPipStream(filtered);
 
-        // النسخ التلقائي: لا ينسخ إلا عند التطابق التام الكامل للاختصار
         if(pipAutoCopy && searchVal.length > 0){
           pipDebounce = pipWin.setTimeout(()=>{
             const match = CANNED_STORE.find(i => normalizeKey(i.keyword) === searchVal);
