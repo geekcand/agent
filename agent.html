@@ -754,17 +754,17 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-/* الوضع العائم المستقل PiP مع تفعيل اختيار مجلد الحفظ المباشر ووضع Entire Screen */
+/* الوضع العائم المستقل PiP مع إخفاء محتوى الـ PiP تماماً (opacity 0) لكي لا تظهر بالصورة وتظل النافذة مفتوحة */
 const hudTemplateMarkup = `
-  <div class="chrono-box">
+  <div class="chrono-box" id="hudMainBox">
     <div class="chrono-row">
       <div id="liveClock" class="live-clock">0:00:00</div>
-      <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة">📸</button>
+      <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة نظيفة">📸</button>
       <button id="chronoHoldAction" class="hud-btn hold-btn">⏳ 2:00</button>
       <div id="chronoDigits" class="chrono-digits">00:00</div>
     </div>
   </div>
-  <div class="hud-input-bar">
+  <div class="hud-input-bar" id="hudInputBar">
     <input id="hudSearchInput" class="hud-search" placeholder="بحث..." autocomplete="off" autofocus />
     <div id="hudAutoBadge" class="hud-autotag">⚡ Auto</div>
   </div>
@@ -774,7 +774,7 @@ const hudTemplateMarkup = `
 
 const hudStyles = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #06080d; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 3px; user-select: none; }
+  body { background: #06080d; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 3px; user-select: none; transition: opacity 0.1s ease; }
   .chrono-box { background: #0d121c; border: 1px solid #192333; border-radius: 8px; padding: 4px 6px; margin-bottom: 4px; }
   .chrono-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
   .live-clock { font-family: monospace; font-size: 11px; font-weight: 700; color: #00e5ff; background: #162030; padding: 4px 5px; border-radius: 5px; }
@@ -802,6 +802,7 @@ dockModeBtn.addEventListener('click', async ()=>{
   if ('documentPictureInPicture' in window) {
     try {
       const pipWin = await window.documentPictureInPicture.requestWindow({ width: 270, height: 420 });
+
       const styleEl = pipWin.document.createElement('style');
       styleEl.textContent = hudStyles;
       pipWin.document.head.appendChild(styleEl);
@@ -818,6 +819,8 @@ dockModeBtn.addEventListener('click', async ()=>{
       const hudAlertToast = pipDoc.getElementById('hudAlertToast');
 
       let targetDirHandle = null;
+      let activeDisplayStream = null;
+      let activeImageCapture = null;
 
       // 1. تشغيل الساعة الحية
       function updateLiveClock(){
@@ -826,7 +829,10 @@ dockModeBtn.addEventListener('click', async ()=>{
       }
       updateLiveClock();
       const clockInterval = pipWin.setInterval(updateLiveClock, 1000);
-      pipWin.addEventListener('unload', ()=> pipWin.clearInterval(clockInterval));
+      pipWin.addEventListener('unload', ()=> {
+        pipWin.clearInterval(clockInterval);
+        if(activeDisplayStream) activeDisplayStream.getTracks().forEach(t => t.stop());
+      });
 
       // 2. تشغيل الـ Stopwatch (التايمر)
       let stopwatchRunning = false, stopwatchElapsed = 0, stopwatchInterval = null, stopwatchStartTime = 0;
@@ -888,7 +894,7 @@ dockModeBtn.addEventListener('click', async ()=>{
         }
       });
 
-      // 4. تشغيل الاسكرين شوت (مع اختيار مجلد الحفظ و Entire Screen تلقائياً)
+      // 4. التقاط الشاشة كاملة وإخفاء محتوى الـ PiP تماماً (Opacity: 0) قبل الالتقاط لكي لا تظهر بالصورة نهائياً
       chronoSnapAction.addEventListener('click', async ()=>{
         try {
           if (!targetDirHandle && ('showDirectoryPicker' in pipWin || 'showDirectoryPicker' in window)) {
@@ -896,18 +902,30 @@ dockModeBtn.addEventListener('click', async ()=>{
             targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
           }
 
-          const stream = await pipWin.navigator.mediaDevices.getDisplayMedia({
-            video: { displaySurface: "monitor" },
-            audio: false,
-            monitorTypeSurfaces: "include",
-            surfaceSwitching: "exclude"
-          });
+          if (!activeDisplayStream || !activeDisplayStream.active) {
+            activeDisplayStream = await pipWin.navigator.mediaDevices.getDisplayMedia({
+              video: { displaySurface: "monitor" },
+              audio: false,
+              monitorTypeSurfaces: "include",
+              surfaceSwitching: "exclude"
+            });
+            const track = activeDisplayStream.getVideoTracks()[0];
+            activeImageCapture = new ImageCapture(track);
 
-          const track = stream.getVideoTracks()[0];
-          const imageCapture = new ImageCapture(track);
-          const bitmap = await imageCapture.grabFrame();
-          
-          track.stop(); // إيقاف العرض فور التقاط الإطار
+            track.addEventListener('ended', ()=>{
+              activeDisplayStream = null;
+              activeImageCapture = null;
+            });
+          }
+
+          // إخفاء نافذة الـ PiP تماماً قبل أخذ لقطة الشاشة
+          pipDoc.body.style.opacity = '0';
+          await new Promise(r => pipWin.setTimeout(r, 200));
+
+          const bitmap = await activeImageCapture.grabFrame();
+
+          // إعادة إظهار نافذة الـ PiP بعد اكتمال اللقطة
+          pipDoc.body.style.opacity = '1';
 
           const canvas = pipDoc.createElement('canvas');
           canvas.width = bitmap.width;
@@ -915,14 +933,14 @@ dockModeBtn.addEventListener('click', async ()=>{
           canvas.getContext('2d').drawImage(bitmap, 0, 0);
 
           canvas.toBlob(async (blob)=>{
-            const fileName = `Screenshot_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
+            const fileName = `Full_Screen_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
             if (targetDirHandle) {
               try {
                 const fileHandle = await targetDirHandle.getFileHandle(fileName, { create: true });
                 const writable = await fileHandle.createWritable();
                 await writable.write(blob);
                 await writable.close();
-                triggerPipToast('تم الحفظ الفوري في المجلد ✅');
+                triggerPipToast('تم الحفظ كـ JPG بنجاح ✅');
                 return;
               } catch(e){}
             }
@@ -930,10 +948,13 @@ dockModeBtn.addEventListener('click', async ()=>{
             link.href = URL.createObjectURL(blob);
             link.download = fileName;
             link.click();
-            triggerPipToast('تم التقاط الشاشة 📸');
+            triggerPipToast('تم تنزيل الشاشة كاملة JPG 📸');
           }, 'image/jpeg', 0.92);
         } catch(err){
-          console.warn("Screenshot canceled or error:", err);
+          pipDoc.body.style.opacity = '1';
+          activeDisplayStream = null;
+          activeImageCapture = null;
+          triggerPipToast('تم إلغاء الالتقاط أو حدث خطأ');
         }
       });
 
