@@ -478,17 +478,22 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-  // حماية صارمة لمنع حفظ الصفحة (Ctrl + S) أو فحص الكود (F12, Inspect, View Source)
+  // حماية صارمة تمنع الحفظ نهائياً (Ctrl + S أو طباعة أو فحص)
   window.addEventListener('keydown', function(e) {
     if (
       e.key === 'F12' || 
-      (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U')) ||
+      (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'p' || e.key === 'P' || e.key === 'u' || e.key === 'U')) ||
       (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c'))
     ) {
       e.preventDefault();
       alert("هذه الصفحة محمية بالكامل لمنع الحفظ أو النسخ 🛡️");
       return false;
     }
+  });
+
+  window.addEventListener('beforeprint', function(e) {
+    e.preventDefault();
+    alert("الطباعة والحفظ معطلان تماماً في هذه الأداة 🛡️");
   });
 
 let CANNED_STORE = JSON.parse(localStorage.getItem('canned_v2_data') || '[]').map(item => ({
@@ -798,6 +803,101 @@ dockModeBtn.addEventListener('click', async ()=>{
       styleEl.textContent = hudStyles;
       pipWin.document.head.appendChild(styleEl);
       pipWin.document.body.innerHTML = hudTemplateMarkup;
+
+      // ربط دالة وسحب الكندات داخل نافذة PiP بـ CANNED_STORE الفعلية
+      const pipDoc = pipWin.document;
+      const hudSearchInput = pipDoc.getElementById('hudSearchInput');
+      const hudStreamContainer = pipDoc.getElementById('hudStreamContainer');
+      const hudAutoBadge = pipDoc.getElementById('hudAutoBadge');
+      const hudAlertToast = pipDoc.getElementById('hudAlertToast');
+
+      let pipAutoCopy = AUTO_COPY_ACTIVE;
+      let pipDebounce = null;
+
+      hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
+      hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
+
+      hudAutoBadge.addEventListener('click', ()=>{
+        pipAutoCopy = !pipAutoCopy;
+        hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
+        hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
+      });
+
+      function triggerPipToast(msg){
+        hudAlertToast.innerText = msg;
+        hudAlertToast.style.display = 'block';
+        setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
+      }
+
+      async function copyFromPip(text, label){
+        try {
+          await pipWin.navigator.clipboard.writeText(text);
+          triggerPipToast(label || 'تم النسخ ✅');
+        } catch(e){}
+      }
+
+      function renderPipStream(list){
+        hudStreamContainer.innerHTML = '';
+        list.slice(0, 40).forEach(item => {
+          const card = pipDoc.createElement('div');
+          card.className = 'hud-item';
+          card.innerHTML = `
+            <div class="item-head">
+              <span class="item-kw">#${escapeEntities(item.keyword)}</span>
+              <button class="item-clip">نسخ</button>
+            </div>
+            <div class="item-snippet">${escapeEntities(item.text)}</div>
+          `;
+          card.addEventListener('click', ()=>{
+            copyFromPip(item.text, `تم نسخ: ${item.keyword}`);
+            hudSearchInput.value = '';
+            renderPipStream(CANNED_STORE);
+          });
+          card.querySelector('.item-clip').addEventListener('click', (e)=>{
+            e.stopPropagation();
+            copyFromPip(item.text, `تم نسخ: ${item.keyword}`);
+            hudSearchInput.value = '';
+            renderPipStream(CANNED_STORE);
+          });
+          hudStreamContainer.appendChild(card);
+        });
+      }
+
+      renderPipStream(CANNED_STORE);
+
+      hudSearchInput.addEventListener('input', ()=>{
+        if(pipDebounce) clearTimeout(pipDebounce);
+        const val = hudSearchInput.value.trim().toLowerCase();
+        if(!val){ renderPipStream(CANNED_STORE); return; }
+
+        const filtered = CANNED_STORE.filter(i => i.keyword.toLowerCase().includes(val) || i.text.toLowerCase().includes(val));
+        renderPipStream(filtered);
+
+        if(pipAutoCopy){
+          pipDebounce = setTimeout(()=>{
+            const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
+            if(match){
+              copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
+              hudSearchInput.value = '';
+              renderPipStream(CANNED_STORE);
+            }
+          }, 500);
+        }
+      });
+
+      hudSearchInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          const val = hudSearchInput.value.trim().toLowerCase();
+          const match = CANNED_STORE.find(i => i.keyword.toLowerCase() === val);
+          if(match){
+            if(pipDebounce) clearTimeout(pipDebounce);
+            copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
+            hudSearchInput.value = '';
+            renderPipStream(CANNED_STORE);
+          }
+        }
+      });
+
       return;
     } catch(err) {}
   }
