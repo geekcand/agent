@@ -371,7 +371,7 @@
   .pop-item:hover { background: var(--bg-elevated); color: #fff; }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="shell">
   <header class="deck-header">
@@ -478,6 +478,19 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
+  // حماية صارمة لمنع حفظ الصفحة (Ctrl + S) أو فحص الكود (F12, Inspect, View Source)
+  window.addEventListener('keydown', function(e) {
+    if (
+      e.key === 'F12' || 
+      (e.ctrlKey && (e.key === 's' || e.key === 'S' || e.key === 'u' || e.key === 'U')) ||
+      (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c'))
+    ) {
+      e.preventDefault();
+      alert("هذه الصفحة محمية بالكامل لمنع الحفظ أو النسخ 🛡️");
+      return false;
+    }
+  });
+
 let CANNED_STORE = JSON.parse(localStorage.getItem('canned_v2_data') || '[]').map(item => ({
   keyword: (item.keyword || item.code || '').trim(),
   text: (item.text || item.snippet || '').trim()
