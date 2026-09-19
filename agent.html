@@ -211,7 +211,7 @@
   .action-btn:hover { color: #fff; background: var(--bg-hover); }
   .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
 
-  /* About & Contact Modern Styled View */
+  /* About & Contact Compact View */
   .view-container { display: flex; flex-direction: column; gap: 20px; }
   .view-container.hidden-view { display: none; }
 
@@ -219,11 +219,11 @@
     background: var(--bg-surface);
     border: 1px solid var(--border-active);
     border-radius: var(--radius-lg);
-    padding: 40px;
-    max-width: 800px;
-    margin: 20px auto;
+    padding: 24px 30px;
+    max-width: 750px;
+    margin: 10px auto;
     width: 100%;
-    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
     position: relative;
     overflow: hidden;
     text-align: center;
@@ -234,28 +234,28 @@
     top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, var(--accent-cyan), var(--accent-primary));
   }
-  .about-box-card h2 { font-size: 24px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
-  .about-box-card p { font-size: 13.5px; color: var(--text-muted); margin-bottom: 30px; }
+  .about-box-card h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+  .about-box-card p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; }
 
   .tools-grid-box {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    text-align: left; /* ضبط الاتجاه لليسار للغة الإنجليزية */
-    direction: ltr;     /* تغيير اتجاه المربع للـ LTR */
-    margin-bottom: 35px;
+    gap: 10px;
+    text-align: left;
+    direction: ltr;
+    margin-bottom: 20px;
   }
   .tool-item-badge {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    padding: 14px 18px;
+    padding: 10px 14px;
     border-radius: var(--radius-md);
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--text-main);
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     transition: all 0.2s ease;
   }
   .tool-item-badge:hover {
@@ -265,10 +265,10 @@
   .tool-item-badge span {
     background: rgba(0, 229, 255, 0.1);
     color: var(--accent-cyan);
-    width: 26px; height: 26px;
-    border-radius: 6px;
+    width: 22px; height: 22px;
+    border-radius: 5px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     border: 1px solid rgba(0, 229, 255, 0.2);
     flex-shrink: 0;
@@ -276,20 +276,20 @@
 
   .contact-footer-box {
     border-top: 1px solid var(--border);
-    padding-top: 24px;
-    font-size: 14px;
+    padding-top: 15px;
+    font-size: 13px;
     color: var(--text-sub);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    direction: ltr; /* ضبط الاتجاه لليسار */
+    gap: 4px;
+    direction: ltr;
   }
   .contact-footer-box a {
     color: var(--accent-cyan);
     text-decoration: none;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
   }
   .contact-footer-box a:hover { text-decoration: underline; color: var(--accent-primary); }
 
@@ -437,13 +437,13 @@
     <main id="cannedGrid" class="data-board"></main>
   </div>
 
-  <!-- صفحة About and Contact بتنسيق LTR لعلامة الصح والكلام -->
+  <!-- صفحة About and Contact بالحجم المصغر لتناسب شاشة واحدة -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
       <h2>About Agent Lite V3</h2>
       <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
       
-      <div style="font-size: 14px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 15px; text-align: center;">: Integrated Tools Directory</div>
+      <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; text-align: center;">: Integrated Tools Directory</div>
       <div class="tools-grid-box">
         <div class="tool-item-badge"><span>✓</span> Canned Tool Automatically</div>
         <div class="tool-item-badge"><span>✓</span> Timer and Live Clock</div>
