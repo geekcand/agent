@@ -210,7 +210,6 @@
   .action-btn:hover { color: #fff; background: var(--bg-hover); }
   .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
 
-  /* Views Management */
   .view-container { display: flex; flex-direction: column; gap: 20px; }
   .view-container.hidden-view { display: none; }
 
@@ -288,7 +287,6 @@
   }
   .contact-footer-box a:hover { text-decoration: underline; color: var(--accent-primary); }
 
-  /* Feedback Form Styling */
   .feedback-form { display: flex; flex-direction: column; gap: 14px; }
   .form-group { display: flex; flex-direction: column; gap: 6px; }
   .form-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
@@ -309,33 +307,20 @@
 
   .deck-footer-fixed {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: 0; left: 0; right: 0;
     background: rgba(12, 16, 23, 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--border);
     padding: 10px 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-code);
-    font-size: 12px;
-    color: var(--text-muted);
-    text-align: center;
-    flex-wrap: wrap;
-    direction: ltr;
-    z-index: 1000;
+    display: flex; justify-content: center; align-items: center; gap: 12px;
+    font-family: var(--font-code); font-size: 12px; color: var(--text-muted);
+    text-align: center; flex-wrap: wrap; direction: ltr; z-index: 1000;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   }
   .deck-footer-fixed .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent-primary);
-    display: inline-block;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent-primary); display: inline-block;
     box-shadow: 0 0 8px var(--accent-primary);
   }
   .deck-footer-fixed a { color: var(--accent-cyan); text-decoration: none; }
@@ -343,22 +328,12 @@
   .deck-footer-fixed .sep { color: var(--border-active); }
 
   .toast-banner {
-    position: fixed;
-    bottom: 54px;
-    left: 24px;
-    background: #000;
-    border: 1px solid var(--accent-primary);
+    position: fixed; bottom: 54px; left: 24px;
+    background: #000; border: 1px solid var(--accent-primary);
     box-shadow: 0 8px 30px rgba(0, 255, 170, 0.25);
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: var(--radius-md);
-    font-size: 13px;
-    font-weight: 600;
-    display: flex; align-items: center; gap: 10px;
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.25s;
-    z-index: 99999;
+    color: #fff; padding: 12px 20px; border-radius: var(--radius-md);
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px;
+    transform: translateY(100px); opacity: 0; transition: all 0.25s; z-index: 99999;
   }
   .toast-banner.visible { transform: translateY(0); opacity: 1; }
   .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-primary); }
@@ -366,10 +341,8 @@
   .dropdown-wrap { position: relative; }
   .pop-menu {
     position: absolute; top: calc(100% + 6px); left: 0;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-active);
-    border-radius: var(--radius-md);
-    padding: 6px; display: none; flex-direction: column; gap: 4px; min-width: 220px; z-index: 50;
+    background: var(--bg-surface); border: 1px solid var(--border-active);
+    border-radius: var(--radius-md); padding: 6px; display: none; flex-direction: column; gap: 4px; min-width: 220px; z-index: 50;
   }
   .pop-menu.show { display: flex; }
   .pop-item { background: transparent; border: none; color: var(--text-sub); padding: 8px 12px; font-size: 12.5px; cursor: pointer; text-align: right; }
@@ -381,7 +354,7 @@
 <div class="shell">
   <header class="deck-header">
     <div class="brand-group">
-      <span class="brand-chip">&lt;/&gt; V3.1</span>
+      <span class="brand-chip">&lt;/&gt; V3.2</span>
       <div>
         <h1 class="brand-title">Agent Lite <span>• By Geek</span></h1>
       </div>
@@ -393,7 +366,6 @@
     </div>
   </header>
 
-  <!-- الصفحة الرئيسية -->
   <div id="mainDashboardView" class="view-container">
     <nav class="control-bay">
       <div class="bay-left">
@@ -442,7 +414,6 @@
     <main id="cannedGrid" class="data-board"></main>
   </div>
 
-  <!-- صفحة About and Contact -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
       <h2>About Agent Lite V3</h2>
@@ -464,7 +435,6 @@
     </div>
   </div>
 
-  <!-- صفحة Suggestions & Feedback -->
   <div id="feedbackPageView" class="view-container hidden-view">
     <div class="feedback-box-card">
       <h2>Suggestions & Feedback</h2>
@@ -907,13 +877,14 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-/* الوضع العائم المستقل PiP بالمقاس المدمج والتحكم العالمي بالميديا */
+/* الوضع العائم المستقل PiP بالمقاس المدمج مع تشغيل الوسائط الصامت للتفاعل العالمي */
 const hudTemplateMarkup = `
+  <audio id="silentMediaAudio" loop style="display:none;" src="data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA="></audio>
   <div class="chrono-box" id="hudMainBox">
     <div class="chrono-row">
       <div id="liveClock" class="live-clock">0:00:00</div>
       <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة نظيفة">📸</button>
-      <div id="chronoDigits" class="chrono-digits" title="اضغط أو استخدم أزرار الميديا (Play/Pause)">00:00</div>
+      <div id="chronoDigits" class="chrono-digits" title="اضغط لتشغيل/إيقاف التايمر">00:00</div>
     </div>
   </div>
   <div class="hud-input-bar" id="hudInputBar">
@@ -950,7 +921,7 @@ const hudStyles = `
 dockModeBtn.addEventListener('click', async ()=>{
   if ('documentPictureInPicture' in window) {
     try {
-      // فتح النافذة فوراً بالمقاس المدمج المطلوب مباشرة
+      // فتح نافذة الـ PiP بالمقاس المطلوب مباشرة (270x135)
       const pipWin = await window.documentPictureInPicture.requestWindow({ width: 270, height: 135 });
 
       const styleEl = pipWin.document.createElement('style');
@@ -959,6 +930,7 @@ dockModeBtn.addEventListener('click', async ()=>{
       pipWin.document.body.innerHTML = hudTemplateMarkup;
 
       const pipDoc = pipWin.document;
+      const silentAudio = pipDoc.getElementById('silentMediaAudio');
       const chronoDigits = pipDoc.getElementById('chronoDigits');
       const chronoSnapAction = pipDoc.getElementById('chronoSnapAction');
       const liveClock = pipDoc.getElementById('liveClock');
@@ -996,6 +968,7 @@ dockModeBtn.addEventListener('click', async ()=>{
           chronoDigits.classList.remove('active');
           chronoDigits.innerText = "00:00";
           updateMediaSessionState("paused");
+          silentAudio.pause().catch(()=>{});
         } else {
           stopwatchRunning = true;
           chronoDigits.classList.add('active');
@@ -1006,26 +979,23 @@ dockModeBtn.addEventListener('click', async ()=>{
             chronoDigits.innerText = formatTime(stopwatchElapsed);
           }, 200);
           updateMediaSessionState("playing");
+          silentAudio.play().catch(()=>{});
         }
       }
 
       chronoDigits.addEventListener('click', toggleStopwatch);
 
-      // تفعيل تشغيل الصوت الصامت ومفاتيح الميديا العالمية (Media Session API) لتعمل من أي مكان بالكمبيوتر
+      // تفعيل تشغيل الوسائط الصامت وربطه بنظام الـ Media Session للتحكم العالمي من الكيبورد
       try {
-        const audioCtx = new (pipWin.AudioContext || pipWin.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        gainNode.gain.value = 0.0001;
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start();
+        silentAudio.play().then(() => {
+          silentAudio.pause(); // بدء التشغيل وإيقافه لحظياً لمنح المتصفح التصريح
+        }).catch(()=>{});
 
         if ('mediaSession' in pipWin.navigator) {
           pipWin.navigator.mediaSession.metadata = new pipWin.MediaMetadata({
             title: 'Agent Lite Timer Control',
             artist: 'Geek',
-            album: 'Canned Support System'
+            album: 'Support Chat Tools'
           });
 
           pipWin.navigator.mediaSession.setActionHandler('play', () => {
@@ -1035,7 +1005,7 @@ dockModeBtn.addEventListener('click', async ()=>{
             if (stopwatchRunning) toggleStopwatch();
           });
           pipWin.navigator.mediaSession.setActionHandler('previoustrack', () => {
-            if (stopwatchRunning) toggleStopwatch(); // إعادة تعيين
+            if (stopwatchRunning) toggleStopwatch(); // إعادة التعيين
           });
           pipWin.navigator.mediaSession.setActionHandler('nexttrack', () => {
             if (!stopwatchRunning) toggleStopwatch();
