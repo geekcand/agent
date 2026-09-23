@@ -381,7 +381,7 @@
 <div class="shell">
   <header class="deck-header">
     <div class="brand-group">
-      <span class="brand-chip">&lt;/&gt; V3.0</span>
+      <span class="brand-chip">&lt;/&gt; V3.1</span>
       <div>
         <h1 class="brand-title">Agent Lite <span>• By Geek</span></h1>
       </div>
@@ -445,7 +445,7 @@
   <!-- صفحة About and Contact -->
   <div id="aboutPageView" class="view-container hidden-view">
     <div class="about-box-card">
-      <h2>About Agent Lite V3</h2>
+      <h2>About Agent Lite V3.1</h2>
       <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
       
       <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; text-align: center;">: Integrated Tools Directory</div>
@@ -453,7 +453,7 @@
         <div class="tool-item-badge"><span>✓</span> Canned Tool Automatically</div>
         <div class="tool-item-badge"><span>✓</span> Timer and Live Clock</div>
         <div class="tool-item-badge"><span>✓</span> Screenshot Automatically</div>
-        <div class="tool-item-badge"><span>✓</span> Export File ( .Bt & CSV )</div>
+        <div class="tool-item-badge"><span>✓</span> Media Keys Timer Control</div>
         <div class="tool-item-badge" style="grid-column: span 2; justify-content: center;"><span>✓</span> Add canned</div>
       </div>
 
@@ -496,7 +496,7 @@
 
 <footer class="deck-footer-fixed">
   <span class="status-dot"></span>
-  <span>Ready</span>
+  <span>Ready (Media Keys Enabled)</span>
   <span class="sep">·</span>
   <span>Developed By : Geek</span>
 </footer>
@@ -508,7 +508,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-  // حماية صارمة لمنع الحفظ (Ctrl+S / Cmd+S) وفحص العناصر نهائياً
   document.addEventListener('keydown', function(e) {
     const key = e.key.toLowerCase();
     if ((e.ctrlKey || e.metaKey) && (key === 's' || e.keyCode === 83)) {
@@ -617,7 +616,7 @@ feedViewBtn.addEventListener('click', () => {
   else switchView('main');
 });
 
-// إرسال الاقتراحات والملاحظات مباشرة للـ Google Apps Script Web App بنفس الطريقة الفورية السريعة
+// إرسال الاقتراحات والملاحظات مباشرة للـ Google Apps Script Web App
 const feedbackForm = document.getElementById("feedbackForm");
 feedbackForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -912,14 +911,12 @@ function triggerDownload(content, filename, mime){
   a.click();
 }
 
-/* الوضع العائم المستقل PiP */
 const hudTemplateMarkup = `
   <div class="chrono-box" id="hudMainBox">
     <div class="chrono-row">
       <div id="liveClock" class="live-clock">0:00:00</div>
       <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة نظيفة">📸</button>
-      <button id="chronoHoldAction" class="hud-btn hold-btn">⏳ 2:00</button>
-      <div id="chronoDigits" class="chrono-digits">00:00</div>
+      <div id="chronoDigits" class="chrono-digits" title="انقر أو استخدم أزرار الميديا للتشغيل/الإيقاف">00:00</div>
     </div>
   </div>
   <div class="hud-input-bar" id="hudInputBar">
@@ -934,15 +931,12 @@ const hudStyles = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #06080d; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 3px; user-select: none; transition: opacity 0.1s ease; }
   .chrono-box { background: #0d121c; border: 1px solid #192333; border-radius: 8px; padding: 4px 6px; margin-bottom: 4px; }
-  .chrono-row { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+  .chrono-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
   .live-clock { font-family: monospace; font-size: 11px; font-weight: 700; color: #00e5ff; background: #162030; padding: 4px 5px; border-radius: 5px; }
   .hud-btn { border: none; background: #162030; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; color: #fff; }
-  .hud-btn.hold-btn { background: #00ffaa; color: #021a11; height: 26px; padding: 0 6px; font-family: monospace; }
-  .hud-btn.hold-btn.running { background: #162030; color: #00ffaa; border: 1px solid #00ffaa; }
-  .hud-btn.hold-btn.halt { background: #ff0055 !important; color: #fff !important; }
-  .chrono-digits { font-family: monospace; font-size: 20px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 2px 4px; }
-  .chrono-digits.active { color: #00ffaa; }
+  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; color: #fff; flex-shrink: 0; }
+  .chrono-digits { font-family: monospace; font-size: 22px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 2px 6px; text-align: left; flex: 1; }
+  .chrono-digits.active { color: #00ffaa; text-shadow: 0 0 10px rgba(0,255,170,0.4); }
   .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; position: sticky; top: 0; background: #06080d; padding-bottom: 4px; z-index: 20; }
   .hud-search { flex: 1; background: #0d121c; border: 1px solid #192333; border-radius: 6px; color: #fff; padding: 5px 8px; font-size: 11.5px; outline: none; direction: rtl; }
   .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 5px 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; }
@@ -956,10 +950,96 @@ const hudStyles = `
   .hud-toast { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #00ffaa; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 12px; display: none; z-index: 1000; direction: rtl; }
 `;
 
+let stopwatchRunning = false;
+let stopwatchElapsed = 0;
+let stopwatchInterval = null;
+let stopwatchStartTime = 0;
+
+function formatTime(ms){
+  const totalSecs = Math.floor(ms / 1000);
+  return `${String(Math.floor(totalSecs / 60)).padStart(2,'0')}:${String(totalSecs % 60).padStart(2,'0')}`;
+}
+
+// Global Media Session Setup for controlling timer via Media keys (Play/Pause, Previous, Next)
+function setupMediaSession(updateDisplayCallback, toastFn) {
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Agent Lite - Productivity Timer',
+        artist: 'Geek',
+        album: 'Media Keys Stopwatch Control'
+      });
+
+      // Play / Pause toggles stopwatch
+      navigator.mediaSession.setActionHandler('play', () => {
+        toggleStopwatchState(updateDisplayCallback, toastFn);
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        toggleStopwatchState(updateDisplayCallback, toastFn);
+      });
+
+      // Previous Track resets stopwatch to zero
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        resetStopwatchState(updateDisplayCallback, toastFn);
+      });
+
+      // Next Track toggles stopwatch as well for accessibility
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        toggleStopwatchState(updateDisplayCallback, toastFn);
+      });
+    } catch(e) {}
+  }
+}
+
+function toggleStopwatchState(updateDisplayCallback, toastFn) {
+  if (stopwatchRunning) {
+    stopwatchRunning = false;
+    if (stopwatchInterval) clearInterval(stopwatchInterval);
+    if (toastFn) toastFn('⏸️ تم إيقاف التايمر مؤقتاً (Media Key)');
+  } else {
+    stopwatchRunning = true;
+    stopwatchStartTime = performance.now();
+    stopwatchInterval = setInterval(() => {
+      stopwatchElapsed += (performance.now() - stopwatchStartTime);
+      stopwatchStartTime = performance.now();
+      if (updateDisplayCallback) updateDisplayCallback(stopwatchElapsed, stopwatchRunning);
+    }, 200);
+    if (toastFn) toastFn('▶️ تم تشغيل التايمر (Media Key)');
+  }
+  if (updateDisplayCallback) updateDisplayCallback(stopwatchElapsed, stopwatchRunning);
+}
+
+function resetStopwatchState(updateDisplayCallback, toastFn) {
+  stopwatchRunning = false;
+  if (stopwatchInterval) clearInterval(stopwatchInterval);
+  stopwatchElapsed = 0;
+  if (updateDisplayCallback) updateDisplayCallback(stopwatchElapsed, stopwatchRunning);
+  if (toastFn) toastFn('🔄 تم تصفير التايمر (Media Key Previous)');
+}
+
+// Global Keyboard Media Keys listener for fallback
+window.addEventListener('keydown', (e) => {
+  const code = e.code || e.key;
+  if (code === 'MediaPlayPause' || code === 'AudioPlay' || code === 'AudioPause' || e.key === 'MediaPlayPause') {
+    e.preventDefault();
+    toggleStopwatchState((elapsed, running) => {
+      // If we are in main view or anywhere, we can update title or badge if desired
+    }, flashToast);
+  } else if (code === 'MediaTrackPrevious' || e.key === 'MediaTrackPrevious') {
+    e.preventDefault();
+    resetStopwatchState(null, flashToast);
+  } else if (code === 'MediaTrackNext' || e.key === 'MediaTrackNext') {
+    e.preventDefault();
+    toggleStopwatchState(null, flashToast);
+  }
+});
+
+setupMediaSession(null, flashToast);
+
 dockModeBtn.addEventListener('click', async ()=>{
   if ('documentPictureInPicture' in window) {
     try {
-      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 270, height: 420 });
+      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 270, height: 380 });
 
       const styleEl = pipWin.document.createElement('style');
       styleEl.textContent = hudStyles;
@@ -968,7 +1048,6 @@ dockModeBtn.addEventListener('click', async ()=>{
 
       const pipDoc = pipWin.document;
       const chronoDigits = pipDoc.getElementById('chronoDigits');
-      const chronoHoldAction = pipDoc.getElementById('chronoHoldAction');
       const chronoSnapAction = pipDoc.getElementById('chronoSnapAction');
       const liveClock = pipDoc.getElementById('liveClock');
       const hudSearchInput = pipDoc.getElementById('hudSearchInput');
@@ -991,60 +1070,61 @@ dockModeBtn.addEventListener('click', async ()=>{
         if(activeDisplayStream) activeDisplayStream.getTracks().forEach(t => t.stop());
       });
 
-      let stopwatchRunning = false, stopwatchElapsed = 0, stopwatchInterval = null, stopwatchStartTime = 0;
-      function formatTime(ms){
-        const totalSecs = Math.floor(ms / 1000);
-        return `${String(Math.floor(totalSecs / 60)).padStart(2,'0')}:${String(totalSecs % 60).padStart(2,'0')}`;
-      }
-      chronoDigits.addEventListener('click', ()=>{
-        if(stopwatchRunning){
-          stopwatchRunning = false;
-          pipWin.clearInterval(stopwatchInterval);
-          stopwatchElapsed = 0;
-          chronoDigits.classList.remove('active');
-          chronoDigits.innerText = "00:00";
-        } else {
-          stopwatchRunning = true;
+      function updatePipStopwatchUI(elapsed, running){
+        chronoDigits.innerText = formatTime(elapsed);
+        if(running){
           chronoDigits.classList.add('active');
-          stopwatchStartTime = performance.now();
-          stopwatchInterval = pipWin.setInterval(()=>{
-            stopwatchElapsed += (performance.now() - stopwatchStartTime);
-            stopwatchStartTime = performance.now();
-            chronoDigits.innerText = formatTime(stopwatchElapsed);
-          }, 200);
+        } else {
+          chronoDigits.classList.remove('active');
+        }
+      }
+
+      function triggerPipToast(msg){
+        hudAlertToast.innerText = msg;
+        hudAlertToast.style.display = 'block';
+        pipWin.setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
+      }
+
+      // Setup Media Session inside PiP window context
+      if ('mediaSession' in pipWin.navigator) {
+        try {
+          pipWin.navigator.mediaSession.metadata = new MediaMetadata({
+            title: 'Agent Lite PiP Stopwatch',
+            artist: 'Geek',
+            album: 'Media Keys Active'
+          });
+          pipWin.navigator.mediaSession.setActionHandler('play', () => {
+            toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
+          });
+          pipWin.navigator.mediaSession.setActionHandler('pause', () => {
+            toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
+          });
+          pipWin.navigator.mediaSession.setActionHandler('previoustrack', () => {
+            resetStopwatchState(updatePipStopwatchUI, triggerPipToast);
+          });
+          pipWin.navigator.mediaSession.setActionHandler('nexttrack', () => {
+            toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
+          });
+        } catch(e){}
+      }
+
+      // Keyboard shortcut listener inside PiP window
+      pipWin.addEventListener('keydown', (e) => {
+        const code = e.code || e.key;
+        if (code === 'MediaPlayPause' || code === 'AudioPlay' || code === 'AudioPause' || e.key === 'MediaPlayPause') {
+          e.preventDefault();
+          toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
+        } else if (code === 'MediaTrackPrevious' || e.key === 'MediaTrackPrevious') {
+          e.preventDefault();
+          resetStopwatchState(updatePipStopwatchUI, triggerPipToast);
+        } else if (code === 'MediaTrackNext' || e.key === 'MediaTrackNext') {
+          e.preventDefault();
+          toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
         }
       });
 
-      let holdRunning = false, holdRemaining = 120 * 1000, holdInterval = null, holdStartTime = 0;
-      function renderHoldUI(){
-        chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
-        if(holdRemaining <= 15000) chronoHoldAction.classList.add('halt');
-      }
-      chronoHoldAction.addEventListener('click', ()=>{
-        if(holdRunning){
-          holdRunning = false;
-          pipWin.clearInterval(holdInterval);
-          holdRemaining = 120 * 1000;
-          chronoHoldAction.className = 'hud-btn hold-btn';
-          chronoHoldAction.innerText = '⏳ 2:00';
-        } else {
-          holdRunning = true;
-          chronoHoldAction.className = 'hud-btn hold-btn running';
-          holdStartTime = performance.now();
-          holdInterval = pipWin.setInterval(()=>{
-            holdRemaining -= (performance.now() - holdStartTime);
-            holdStartTime = performance.now();
-            if(holdRemaining <= 0){
-              holdRemaining = 0;
-              pipWin.clearInterval(holdInterval);
-              holdRunning = false;
-              chronoHoldAction.className = 'hud-btn hold-btn';
-              chronoHoldAction.innerText = '⏳ 2:00';
-            } else {
-              renderHoldUI();
-            }
-          }, 200);
-        }
+      chronoDigits.addEventListener('click', ()=>{
+        toggleStopwatchState(updatePipStopwatchUI, triggerPipToast);
       });
 
       chronoSnapAction.addEventListener('click', async ()=>{
@@ -1116,12 +1196,6 @@ dockModeBtn.addEventListener('click', async ()=>{
         hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
         hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
       });
-
-      function triggerPipToast(msg){
-        hudAlertToast.innerText = msg;
-        hudAlertToast.style.display = 'block';
-        pipWin.setTimeout(()=> hudAlertToast.style.display = 'none', 1400);
-      }
 
       async function copyFromPip(text, label){
         try {
