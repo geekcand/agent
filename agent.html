@@ -1046,7 +1046,8 @@ const hudTemplateMarkup = `
     <div class="chrono-row">
       <div id="liveClock" class="live-clock">0:00:00</div>
       <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة نظيفة">📸</button>
-      <div id="chronoDigits" class="chrono-digits" title="اضغط للتشغيل/الإيقاف • Media Keys مدعومة">00:00</div>
+      <button id="chronoHoldAction" class="hud-btn hold-btn" title="Hold 2 دقيقة — كليك تشغيل / كليك تاني Reset">⏳ 2:00</button>
+      <div id="chronoDigits" class="chrono-digits" title="كليك تشغيل / كليك تاني Reset • Media Keys مدعومة">00:00</div>
     </div>
   </div>
   <div class="hud-input-bar" id="hudInputBar">
@@ -1064,6 +1065,9 @@ const hudStyles = `
   .live-clock { font-family: monospace; font-size: 11px; font-weight: 700; color: #00e5ff; background: #162030; padding: 3px 5px; border-radius: 5px; text-align: center; flex-shrink: 0; }
   .hud-btn { border: none; background: #162030; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .hud-btn.snap { background: #3b82f6; width: 22px; height: 22px; color: #fff; flex-shrink: 0; font-size: 10px; }
+  .hud-btn.hold-btn { background: #00ffaa; color: #021a11; height: 22px; padding: 0 5px; font-family: monospace; font-size: 10px; flex-shrink: 0; }
+  .hud-btn.hold-btn.running { background: #162030; color: #00ffaa; border: 1px solid #00ffaa; }
+  .hud-btn.hold-btn.halt { background: #ff0055 !important; color: #fff !important; }
   .chrono-digits { font-family: monospace; font-size: 16px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 1px 2px; text-align: center; flex: 1; letter-spacing: 0.5px; min-width: 42px; }
   .chrono-digits.active { color: #00ffaa; }
   .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; align-items: center; }
@@ -1079,7 +1083,7 @@ window.__agentTimerControls = null;
 dockModeBtn.addEventListener('click', async ()=>{
   if ('documentPictureInPicture' in window) {
     try {
-      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 200, height: 68 });
+      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 250, height: 68 });
 
       const styleEl = pipWin.document.createElement('style');
       styleEl.textContent = hudStyles;
@@ -1089,6 +1093,7 @@ dockModeBtn.addEventListener('click', async ()=>{
       const pipDoc = pipWin.document;
       const chronoDigits = pipDoc.getElementById('chronoDigits');
       const chronoSnapAction = pipDoc.getElementById('chronoSnapAction');
+      const chronoHoldAction = pipDoc.getElementById('chronoHoldAction');
       const liveClock = pipDoc.getElementById('liveClock');
       const hudSearchInput = pipDoc.getElementById('hudSearchInput');
       const hudAutoBadge = pipDoc.getElementById('hudAutoBadge');
@@ -1204,17 +1209,12 @@ dockModeBtn.addEventListener('click', async ()=>{
         isRunning: () => stopwatchRunning
       };
 
-      chronoDigits.addEventListener('click', ()=> toggleStopwatch());
-      chronoDigits.addEventListener('dblclick', (e)=>{
-        e.preventDefault();
-        resetStopwatch();
-      });
-
+      // كليك ماوس على التايمر = تشغيل / كليك تاني = Reset (نفس سلوك Media Keys)
       let lastMediaActionAt = 0;
       function startOrResetStopwatch(){
         if (!window.__agentTimerControls) return;
         const now = Date.now();
-        if (now - lastMediaActionAt < 500) return;
+        if (now - lastMediaActionAt < 400) return;
         lastMediaActionAt = now;
 
         if (window.__agentTimerControls.isRunning()) {
@@ -1223,6 +1223,48 @@ dockModeBtn.addEventListener('click', async ()=>{
           window.__agentTimerControls.start();
         }
       }
+
+      chronoDigits.addEventListener('click', ()=> startOrResetStopwatch());
+
+      // ===== Hold Timer (2 دقيقة عد تنازلي) — كليك تشغيل / كليك تاني Reset =====
+      let holdRunning = false, holdRemaining = 120 * 1000, holdInterval = null, holdStartTime = 0;
+      function renderHoldUI(){
+        chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
+        if (holdRemaining <= 15000) chronoHoldAction.classList.add('halt');
+        else chronoHoldAction.classList.remove('halt');
+      }
+      function resetHold(){
+        holdRunning = false;
+        if (holdInterval) pipWin.clearInterval(holdInterval);
+        holdRemaining = 120 * 1000;
+        chronoHoldAction.className = 'hud-btn hold-btn';
+        chronoHoldAction.innerText = '⏳ 2:00';
+      }
+      chronoHoldAction.addEventListener('click', ()=>{
+        if (holdRunning) {
+          resetHold();
+          triggerPipToast('⏹️ Hold Reset');
+        } else {
+          holdRunning = true;
+          chronoHoldAction.className = 'hud-btn hold-btn running';
+          holdStartTime = performance.now();
+          holdInterval = pipWin.setInterval(()=>{
+            holdRemaining -= (performance.now() - holdStartTime);
+            holdStartTime = performance.now();
+            if (holdRemaining <= 0) {
+              holdRemaining = 0;
+              pipWin.clearInterval(holdInterval);
+              holdRunning = false;
+              chronoHoldAction.className = 'hud-btn hold-btn';
+              chronoHoldAction.innerText = '⏳ 2:00';
+              triggerPipToast('⏰ انتهى الـ Hold');
+            } else {
+              renderHoldUI();
+            }
+          }, 200);
+          triggerPipToast('⏳ Hold بدأ');
+        }
+      });
 
       function setupMediaSession(nav){
         if (!nav || !('mediaSession' in nav)) return;
