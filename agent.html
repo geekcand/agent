@@ -1,0 +1,1570 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Lite • By Geek</title>
+<link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4017/4017991.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #06080d;
+    --bg-surface: #0c1017;
+    --bg-elevated: #131924;
+    --bg-hover: #1b2332;
+    --accent-primary: #00ffaa;
+    --accent-glow: rgba(0, 255, 170, 0.25);
+    --accent-secondary: #ff0055;
+    --accent-cyan: #00e5ff;
+    --accent-amber: #ffaa00;
+    --text-main: #f1f5f9;
+    --text-muted: #64748b;
+    --text-sub: #94a3b8;
+    --border: #1e293b;
+    --border-active: #334155;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+    --font-code: 'Fira Code', monospace;
+    --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    padding: 24px 16px 70px 16px;
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(circle at 15% 10%, rgba(0, 255, 170, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(255, 0, 85, 0.03) 0%, transparent 40%);
+  }
+
+  .shell { max-width: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+  .deck-header {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .deck-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan), var(--accent-secondary));
+  }
+  .brand-group { display: flex; align-items: center; gap: 14px; }
+  .brand-chip {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-active);
+    color: var(--accent-primary);
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .brand-title { font-size: 20px; font-weight: 800; }
+  .brand-title span { color: var(--accent-cyan); }
+
+  /* لوحة التنبيه التعليمية فوق الأداة */
+  .notice-banner-box {
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.07), rgba(0, 255, 170, 0.04));
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    border-radius: var(--radius-lg);
+    padding: 16px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.6;
+  }
+  .notice-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .notice-content strong { color: var(--accent-cyan); font-size: 14px; display: block; margin-bottom: 4px; }
+  .notice-content ul { margin-top: 6px; padding-right: 18px; }
+  .notice-content li { margin-bottom: 4px; color: var(--text-main); }
+  .notice-content li span { color: var(--accent-primary); font-family: var(--font-code); font-weight: 700; }
+
+  /* لوحة إضافة وتعديل الكندات المدمجة داخل الصفحة */
+  .snippet-editor-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--accent-cyan);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 12px 35px rgba(0, 229, 255, 0.12);
+  }
+  .snippet-editor-panel.hidden-view { display: none; }
+  .snippet-editor-panel h3 { font-size: 16px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 8px; }
+  
+  .editor-fields-group { display: flex; flex-direction: column; gap: 12px; }
+  .editor-field { display: flex; flex-direction: column; gap: 5px; }
+  .editor-field label { font-size: 12.5px; font-weight: 700; color: var(--text-main); }
+  .editor-field input, .editor-field textarea {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: #fff;
+    font-size: 13.5px;
+    font-family: var(--font-main);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .editor-field input:focus, .editor-field textarea:focus { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0,229,255,0.15); }
+  .editor-field textarea { resize: vertical; min-height: 80px; }
+  .editor-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+
+  .control-bay {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 18px;
+  }
+  .bay-left, .bay-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  .geek-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    font-family: var(--font-main);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.18s ease;
+    user-select: none;
+  }
+  .geek-btn:hover { background: var(--bg-hover); color: #fff; transform: translateY(-1px); }
+  .geek-btn.primary {
+    background: var(--accent-primary);
+    color: #03150d;
+    border-color: var(--accent-primary);
+    font-weight: 700;
+    box-shadow: 0 0 16px var(--accent-glow);
+  }
+  .geek-btn.cyan-btn {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--accent-cyan);
+    border-color: rgba(0, 229, 255, 0.3);
+  }
+  .geek-btn.cyan-btn:hover { background: rgba(0, 229, 255, 0.2); color: #fff; }
+  .geek-btn.danger:hover { background: rgba(255, 0, 85, 0.15); border-color: var(--accent-secondary); color: var(--accent-secondary); }
+  .geek-btn.active-state { background: rgba(0, 255, 170, 0.1); color: var(--accent-primary); border-color: var(--accent-primary); }
+  .geek-btn.amber-active { background: rgba(255, 170, 0, 0.12); color: var(--accent-amber); border-color: var(--accent-amber); }
+
+  .search-station {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: center;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 10px 16px;
+  }
+  .station-select {
+    background: var(--bg-elevated);
+    color: var(--text-sub);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    outline: none;
+    cursor: pointer;
+  }
+  .input-wrapper { position: relative; width: 100%; }
+  .station-input {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 11px 40px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+  .station-input:focus { border-color: var(--accent-cyan); box-shadow: 0 0 14px rgba(0, 229, 255, 0.15); }
+  .input-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; font-family: var(--font-code); }
+  .input-clear { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: none; }
+
+  .stat-counter { font-family: var(--font-code); font-size: 12px; color: var(--text-muted); display: flex; gap: 12px; }
+  .stat-counter b { color: var(--accent-cyan); }
+
+  .data-board { display: flex; flex-direction: column; gap: 10px; }
+  .canned-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 180px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .canned-card:hover { background: var(--bg-elevated); border-color: var(--border-active); transform: translateX(-3px); }
+  .trigger-badge {
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+  }
+  .card-body { font-size: 13.5px; color: var(--text-sub); line-height: 1.6; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-actions { display: flex; align-items: center; gap: 6px; }
+  .action-btn {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 34px; height: 34px;
+    border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+  }
+  .action-btn:hover { color: #fff; background: var(--bg-hover); }
+  .action-btn.fav-act.active { color: var(--accent-secondary); background: rgba(255, 0, 85, 0.1); border-color: var(--accent-secondary); }
+
+  /* Views Management */
+  .view-container { display: flex; flex-direction: column; gap: 20px; }
+  .view-container.hidden-view { display: none; }
+
+  .about-box-card, .feedback-box-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-lg);
+    padding: 24px 30px;
+    max-width: 750px;
+    margin: 10px auto;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .feedback-box-card { text-align: right; }
+  .about-box-card::before, .feedback-box-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-primary));
+  }
+  .about-box-card h2, .feedback-box-card h2 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+  .about-box-card p, .feedback-box-card p { font-size: 12.5px; color: var(--text-muted); margin-bottom: 18px; }
+
+  .tools-grid-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    text-align: left;
+    direction: ltr;
+    margin-bottom: 20px;
+  }
+  .tool-item-badge {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .tool-item-badge span {
+    background: rgba(0, 229, 255, 0.1);
+    color: var(--accent-cyan);
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    flex-shrink: 0;
+  }
+
+  .contact-footer-box {
+    border-top: 1px solid var(--border);
+    padding-top: 15px;
+    font-size: 13px;
+    color: var(--text-sub);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    direction: ltr;
+  }
+  .contact-footer-box a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .contact-footer-box a:hover { text-decoration: underline; color: var(--accent-primary); }
+
+  /* Feedback Form Styling */
+  .feedback-form { display: flex; flex-direction: column; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--bg-elevated); border: 1px solid var(--border); border-radius: var(--radius-md);
+    padding: 11px 14px; color: var(--text-main); font-family: var(--font-main); font-size: 13.5px; outline: none;
+    transition: border-color .2s ease;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent-cyan); }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .submit-btn {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-primary));
+    border: none; border-radius: 999px; padding: 12px; cursor: pointer;
+    font-family: var(--font-main); font-weight: 700; font-size: 14px; color: #03150d;
+    transition: filter .15s ease, transform .1s ease; margin-top: 6px;
+  }
+  .submit-btn:hover { filter: brightness(1.08); }
+
+  .deck-footer-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(12, 16, 23, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    flex-wrap: wrap;
+    direction: ltr;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+  }
+  .deck-footer-fixed .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    display: inline-block;
+    box-shadow: 0 0 8px var(--accent-primary);
+  }
+  .deck-footer-fixed a { color: var(--accent-cyan); text-decoration: none; }
+  .deck-footer-fixed a:hover { color: var(--accent-primary); text-decoration: underline; }
+  .deck-footer-fixed .sep { color: var(--border-active); }
+
+  .toast-banner {
+    position: fixed;
+    bottom: 54px;
+    left: 24px;
+    background: #000;
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 8px 30px rgba(0, 255, 170, 0.25);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex; align-items: center; gap: 10px;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.25s;
+    z-index: 99999;
+  }
+  .toast-banner.visible { transform: translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-primary); }
+
+  .dropdown-wrap { position: relative; }
+  .pop-menu {
+    position: absolute; top: calc(100% + 6px); left: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-active);
+    border-radius: var(--radius-md);
+    padding: 6px; display: none; flex-direction: column; gap: 4px; min-width: 220px; z-index: 50;
+  }
+  .pop-menu.show { display: flex; }
+  .pop-item { background: transparent; border: none; color: var(--text-sub); padding: 8px 12px; font-size: 12.5px; cursor: pointer; text-align: right; }
+  .pop-item:hover { background: var(--bg-elevated); color: #fff; }
+</style>
+</head>
+<body oncontextmenu="return false;">
+
+<div class="shell">
+  <header class="deck-header">
+    <div class="brand-group">
+      <span class="brand-chip">&lt;/&gt; V3.1</span>
+      <div>
+        <h1 class="brand-title">Agent Lite <span>• By Geek</span></h1>
+      </div>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <button id="aboutViewBtn" class="geek-btn cyan-btn">ℹ️ About and Contact</button>
+      <button id="feedViewBtn" class="geek-btn cyan-btn">💡 Suggestions & Feedback</button>
+      <button id="dockModeBtn" class="geek-btn primary">📌 تفعيل الوضع العائم المستقل</button>
+    </div>
+  </header>
+
+  <!-- تنبيه طويل موضح لطريقة الاستخدام تحت اسم التول مباشرة -->
+  <div class="notice-banner-box">
+    <div class="notice-icon">📌</div>
+    <div class="notice-content">
+      <strong>دليل الاستخدام :</strong>
+      <ul>
+        <li><b>البحث والنسخ التلقائي:</b> عند كتابة الاختصار (Trigger) في خانة البحث أدناه، يتم نسخ النص تلقائياً.</li>
+        <li><b>التايمر (المؤقت):</b> يعمل من خلال النقر المباشر بالماوس على أرقام التايمر، أو عبر أزرار الميديا (`Play / Pause`) في لوحة المفاتيح.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- الصفحة الرئيسية -->
+  <div id="mainDashboardView" class="view-container">
+    <nav class="control-bay">
+      <div class="bay-left">
+        <button id="toggleAutoBtn" class="geek-btn active-state">⚡ Auto-Copy: نشط</button>
+        <button id="toggleFavFilter" class="geek-btn">❤️ المفضلة فقط</button>
+        <button id="createSnippetBtn" class="geek-btn">➕ إضافة اختصار</button>
+      </div>
+      <div class="bay-right">
+        <label for="excelUpload" class="geek-btn" style="cursor:pointer">📂 Import Excel</label>
+        <input id="excelUpload" type="file" accept=".xlsx,.xls" style="display:none">
+
+        <label for="jsonUpload" class="geek-btn" style="cursor:pointer">⚡ Import Backup</label>
+        <input id="jsonUpload" type="file" accept=".btbackup,.json" style="display:none">
+
+        <div class="dropdown-wrap">
+          <button id="exportDropBtn" class="geek-btn">📦 Export ▾</button>
+          <div id="exportDropMenu" class="pop-menu">
+            <button class="pop-item" data-act="btbackup">💾 حفظ كملف Beeftext (.btbackup)</button>
+            <button class="pop-item" data-act="csv">📑 حفظ كملف CSV</button>
+            <button class="pop-item" data-act="favs">❤️ تصدير المفضلة فقط</button>
+          </div>
+        </div>
+        <button id="wipeAllBtn" class="geek-btn danger">🗑️ مسح الكل</button>
+      </div>
+    </nav>
+
+    <!-- أداة إضافة وتعديل الكندات المدمجة (تظهر وتختبس بدون Pop-up) -->
+    <div id="snippetEditorPanel" class="snippet-editor-panel hidden-view">
+      <h3 id="panelTitle">➕ إضافة اختصار جديد</h3>
+      <div class="editor-fields-group">
+        <div class="editor-field">
+          <label for="panelTriggerInput">مفتاح الاختصار (Trigger)</label>
+          <input type="text" id="panelTriggerInput" placeholder="مثال: #hello" autocomplete="off" />
+        </div>
+        <div class="editor-field">
+          <label for="panelTextInput">نص الكاند أو العبارة (Canned Text)</label>
+          <textarea id="panelTextInput" placeholder="اكتب النص التلقائي هنا..."></textarea>
+        </div>
+      </div>
+      <div class="editor-actions">
+        <button id="saveSnippetBtn" class="geek-btn primary">💾 حفظ الاختصار</button>
+        <button id="cancelSnippetBtn" class="geek-btn">❌ إلغاء</button>
+      </div>
+    </div>
+
+    <section class="search-station">
+      <select id="queryScope" class="station-select">
+        <option value="all">كل الحقول</option>
+        <option value="keyword">Trigger فقط</option>
+        <option value="text">العبارة فقط</option>
+      </select>
+
+      <div class="input-wrapper">
+        <span class="input-icon">#_</span>
+        <input id="queryInput" class="station-input" placeholder="بحث ب أختصار الكاند..." autocomplete="off" />
+        <button id="queryReset" class="input-clear">✕</button>
+      </div>
+
+      <div class="stat-counter">
+        <span>العبارات: <b id="statTotal">0</b></span>
+        <span>المفضلة: <b id="statFavs">0</b></span>
+      </div>
+    </section>
+
+    <main id="cannedGrid" class="data-board"></main>
+  </div>
+
+  <!-- صفحة About and Contact -->
+  <div id="aboutPageView" class="view-container hidden-view">
+    <div class="about-box-card">
+      <h2>About Agent Lite V3.1</h2>
+      <p>نظام ذكي متكامل لإدارة وتحسين مهام الدعم الفني وسرعة الرد التلقائي.</p>
+      
+      <div style="font-size: 13px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 12px; text-align: center;">: Integrated Tools Directory</div>
+      <div class="tools-grid-box">
+        <div class="tool-item-badge"><span>✓</span> Canned Tool Automatically</div>
+        <div class="tool-item-badge"><span>✓</span> Timer and Live Clock</div>
+        <div class="tool-item-badge"><span>✓</span> Screenshot Automatically</div>
+        <div class="tool-item-badge"><span>✓</span> Export File ( .Bt & CSV )</div>
+        <div class="tool-item-badge" style="grid-column: span 2; justify-content: center;"><span>✓</span> Inline Professional Add/Edit</div>
+      </div>
+
+      <div class="contact-footer-box">
+        <span>Contact us at:</span>
+        <a href="mailto:contact@cand-chat.info">contact@cand-chat.info</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- صفحة Suggestions & Feedback -->
+  <div id="feedbackPageView" class="view-container hidden-view">
+    <div class="feedback-box-card">
+      <h2>Suggestions & Feedback</h2>
+      <p>شاركنا باقتراحاتك لتطوير الأداة أو أي ملاحظات للتحسين, شكراً لمشاركتك مقدماً.</p>
+      
+      <form class="feedback-form" id="feedbackForm">
+        <div class="form-group">
+          <label for="empName">اسم الموظف</label>
+          <input type="text" id="empName" placeholder="اكتب اسمك أو اتركه فارغاً">
+        </div>
+        <div class="form-group">
+          <label for="suggType">نوع المشاركة</label>
+          <select id="suggType">
+            <option value="اقتراح تطوير أداة">اقتراح تطوير أداة</option>
+            <option value="تعديل / اضافه ">تعديل / اضافه </option>
+            <option value="مشكلة تقنية">مشكلة تقنية</option>
+            <option value="أخرى">أخرى</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="suggText">تفاصيل الاقتراح أو الملاحظة *</label>
+          <textarea id="suggText" placeholder="اكتب تفاصيل مقترحك هنا..." required></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="submitFeedbackBtn">إرسال الاقتراح 🚀</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer class="deck-footer-fixed">
+  <span class="status-dot"></span>
+  <span>Ready</span>
+  <span class="sep">·</span>
+  <span>Developed By : Geek</span>
+</footer>
+
+<div id="globalToast" class="toast-banner">
+  <span class="toast-dot"></span>
+  <span id="toastMessage">عملية ناجحة</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+  // حماية صارمة لمنع الحفظ (Ctrl+S / Cmd+S) وفحص العناصر نهائياً
+  document.addEventListener('keydown', function(e) {
+    const key = e.key.toLowerCase();
+    if ((e.ctrlKey || e.metaKey) && (key === 's' || e.keyCode === 83)) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      alert("هذه الصفحة محمية بالكامل لمنع الحفظ 🛡️");
+      return false;
+    }
+  }, true);
+
+  window.addEventListener('keydown', function(e) {
+    const key = e.key.toLowerCase();
+    if (
+      e.key === 'F12' || 
+      ((e.ctrlKey || e.metaKey) && (key === 'p' || key === 'u' || key === 'i' || key === 'j' || key === 'c')) ||
+      (e.ctrlKey && e.shiftKey)
+    ) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      return false;
+    }
+  }, true);
+
+  window.addEventListener('beforeprint', function(e) {
+    e.preventDefault();
+  });
+
+function normalizeKey(str){
+  return (str || '').toString().trim().toLowerCase().replace(/^[#\/]/, '');
+}
+
+let CANNED_STORE = JSON.parse(localStorage.getItem('canned_v2_data') || '[]').map(item => ({
+  keyword: (item.keyword || item.code || '').trim(),
+  text: (item.text || item.snippet || '').trim()
+})).filter(i => i.keyword && i.text);
+
+if(!CANNED_STORE.length && localStorage.getItem('phrases_data')){
+  try {
+    CANNED_STORE = JSON.parse(localStorage.getItem('phrases_data')).map(p => ({
+      keyword: (p.keyword || p.code || '').trim(),
+      text: (p.text || '').trim()
+    })).filter(i => i.keyword && i.text);
+  } catch(e){}
+}
+
+let FAV_KEYS = JSON.parse(localStorage.getItem('canned_v2_favs') || '[]');
+let AUTO_COPY_ACTIVE = localStorage.getItem('canned_v2_autocopy') !== 'false';
+let ONLY_FAV_FILTER = false;
+let globalDebounce = null;
+
+// متغير لتتبع حالة التعديل داخل اللوحة المدمجة
+let editingOriginalKeyword = null;
+
+const cannedGrid = document.getElementById('cannedGrid');
+const queryInput = document.getElementById('queryInput');
+const queryScope = document.getElementById('queryScope');
+const queryReset = document.getElementById('queryReset');
+const statTotal = document.getElementById('statTotal');
+const statFavs = document.getElementById('statFavs');
+const toggleAutoBtn = document.getElementById('toggleAutoBtn');
+const toggleFavFilter = document.getElementById('toggleFavFilter');
+const createSnippetBtn = document.getElementById('createSnippetBtn');
+const dockModeBtn = document.getElementById('dockModeBtn');
+
+const snippetEditorPanel = document.getElementById('snippetEditorPanel');
+const panelTitle = document.getElementById('panelTitle');
+const panelTriggerInput = document.getElementById('panelTriggerInput');
+const panelTextInput = document.getElementById('panelTextInput');
+const saveSnippetBtn = document.getElementById('saveSnippetBtn');
+const cancelSnippetBtn = document.getElementById('cancelSnippetBtn');
+
+const aboutViewBtn = document.getElementById('aboutViewBtn');
+const feedViewBtn = document.getElementById('feedViewBtn');
+const mainDashboardView = document.getElementById('mainDashboardView');
+const aboutPageView = document.getElementById('aboutPageView');
+const feedbackPageView = document.getElementById('feedbackPageView');
+
+const exportDropBtn = document.getElementById('exportDropBtn');
+const exportDropMenu = document.getElementById('exportDropMenu');
+const globalToast = document.getElementById('globalToast');
+const toastMessage = document.getElementById('toastMessage');
+
+// تبديل العرض بين الصفحات
+function switchView(target) {
+  mainDashboardView.classList.add('hidden-view');
+  aboutPageView.classList.add('hidden-view');
+  feedbackPageView.classList.add('hidden-view');
+  snippetEditorPanel.classList.add('hidden-view');
+
+  aboutViewBtn.className = 'geek-btn cyan-btn';
+  aboutViewBtn.innerText = 'ℹ️ About and Contact';
+  feedViewBtn.className = 'geek-btn cyan-btn';
+  feedViewBtn.innerText = '💡 Suggestions & Feedback';
+
+  if (target === 'about') {
+    aboutPageView.classList.remove('hidden-view');
+    aboutViewBtn.className = 'geek-btn primary';
+    aboutViewBtn.innerText = '🔙 العودة للأدوات';
+  } else if (target === 'feedback') {
+    feedbackPageView.classList.remove('hidden-view');
+    feedViewBtn.className = 'geek-btn primary';
+    feedViewBtn.innerText = '🔙 العودة للأدوات';
+  } else {
+    mainDashboardView.classList.remove('hidden-view');
+  }
+}
+
+aboutViewBtn.addEventListener('click', () => {
+  if (aboutPageView.classList.contains('hidden-view')) switchView('about');
+  else switchView('main');
+});
+
+feedViewBtn.addEventListener('click', () => {
+  if (feedbackPageView.classList.contains('hidden-view')) switchView('feedback');
+  else switchView('main');
+});
+
+// إرسال الاقتراحات والملاحظات مباشرة للـ Google Apps Script Web App
+const feedbackForm = document.getElementById("feedbackForm");
+feedbackForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwanRWJw9hE7qPrO4vuyC2x0p7in3XYyYfJGSevWcKBEXajhog3DXfa8LWqPDVMcF43MQ/exec"; 
+
+  const payload = {
+    employeeName: document.getElementById("empName").value.trim() || "مجهول",
+    suggestionType: document.getElementById("suggType").value,
+    suggestionText: document.getElementById("suggText").value.trim()
+  };
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(() => {});
+
+  alert("تم إرسال اقتراحك بنجاح ، شكراً لك! 🌟");
+  feedbackForm.reset();
+  switchView('main');
+});
+
+function syncStorage(){
+  localStorage.setItem('canned_v2_data', JSON.stringify(CANNED_STORE));
+  localStorage.setItem('canned_v2_favs', JSON.stringify(FAV_KEYS));
+  localStorage.setItem('canned_v2_autocopy', AUTO_COPY_ACTIVE);
+}
+
+function flashToast(msg){
+  toastMessage.innerText = msg;
+  globalToast.classList.add('visible');
+  setTimeout(() => globalToast.classList.remove('visible'), 2000);
+}
+
+function updateAutoCopyButtonState(){
+  toggleAutoBtn.className = AUTO_COPY_ACTIVE ? 'geek-btn active-state' : 'geek-btn';
+  toggleAutoBtn.innerHTML = AUTO_COPY_ACTIVE ? '⚡ Auto-Copy: نشط' : '⚡ Auto-Copy: معطل';
+}
+updateAutoCopyButtonState();
+
+toggleAutoBtn.addEventListener('click', ()=>{
+  AUTO_COPY_ACTIVE = !AUTO_COPY_ACTIVE;
+  updateAutoCopyButtonState();
+  syncStorage();
+  flashToast(AUTO_COPY_ACTIVE ? 'تم تفعيل النسخ التلقائي ⚡' : 'تم تعطيل النسخ التلقائي');
+});
+
+async function copyPayload(content, cardElement, label){
+  try {
+    await navigator.clipboard.writeText(content);
+    flashToast(label || 'تم النسخ بنجاح');
+  } catch(e) {
+    const area = document.createElement('textarea');
+    area.value = content;
+    document.body.appendChild(area);
+    area.select();
+    document.execCommand('copy');
+    document.body.removeChild(area);
+    flashToast(label || 'تم النسخ بنجاح');
+  }
+}
+
+function refreshDisplay(dataset){
+  cannedGrid.innerHTML = '';
+  dataset.forEach(entry => {
+    const isSaved = FAV_KEYS.includes(entry.keyword);
+    const card = document.createElement('div');
+    card.className = 'canned-card';
+    card.innerHTML = `
+      <div class="card-trigger"><span class="trigger-badge"># ${escapeEntities(entry.keyword)}</span></div>
+      <div class="card-body">${escapeEntities(entry.text)}</div>
+      <div class="card-actions">
+        <button class="action-btn copy-act" title="نسخ">📋</button>
+        <button class="action-btn mod-act" title="تعديل">✏️</button>
+        <button class="action-btn fav-act ${isSaved ? 'active' : ''}" title="المفضلة">${isSaved ? '❤️' : '🤍'}</button>
+        <button class="action-btn del-act" title="حذف">🗑️</button>
+      </div>
+    `;
+
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.card-actions')) return;
+      copyPayload(entry.text, card, `تم نسخ: ${entry.keyword}`);
+    });
+
+    card.querySelector('.copy-act').addEventListener('click', ()=> copyPayload(entry.text, card, `تم نسخ: ${entry.keyword}`));
+    card.querySelector('.fav-act').addEventListener('click', ()=> toggleFavorite(entry.keyword));
+    card.querySelector('.mod-act').addEventListener('click', ()=> openEditorForModify(entry));
+    card.querySelector('.del-act').addEventListener('click', ()=> removeSnippet(entry.keyword));
+
+    cannedGrid.appendChild(card);
+  });
+
+  statTotal.innerText = CANNED_STORE.length;
+  statFavs.innerText = FAV_KEYS.length;
+}
+
+function escapeEntities(str){
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function toggleFavorite(key){
+  const idx = FAV_KEYS.indexOf(key);
+  if(idx > -1) FAV_KEYS.splice(idx, 1); else FAV_KEYS.push(key);
+  syncStorage();
+  runFilter();
+}
+
+toggleFavFilter.addEventListener('click', ()=>{
+  ONLY_FAV_FILTER = !ONLY_FAV_FILTER;
+  toggleFavFilter.classList.toggle('amber-active', ONLY_FAV_FILTER);
+  runFilter();
+});
+
+// فتح لوحة الإضافة المدمجة
+createSnippetBtn.addEventListener('click', ()=>{
+  editingOriginalKeyword = null;
+  panelTitle.innerText = '➕ إضافة اختصار جديد';
+  panelTriggerInput.value = '';
+  panelTextInput.value = '';
+  snippetEditorPanel.classList.remove('hidden-view');
+  panelTriggerInput.focus();
+  snippetEditorPanel.scrollIntoView({ behavior: 'smooth' });
+});
+
+// فتح لوحة التعديل المدمجة بدلاً من الـ Prompt
+function openEditorForModify(entry){
+  editingOriginalKeyword = entry.keyword;
+  panelTitle.innerText = `✏️ تعديل الاختصار: ${entry.keyword}`;
+  panelTriggerInput.value = entry.keyword;
+  panelTextInput.value = entry.text;
+  snippetEditorPanel.classList.remove('hidden-view');
+  panelTriggerInput.focus();
+  snippetEditorPanel.scrollIntoView({ behavior: 'smooth' });
+}
+
+// حفظ الاختصار (سواء إضافة جديدة أو تعديل) من خلال المربعين المدمجين
+saveSnippetBtn.addEventListener('click', ()=>{
+  const kw = panelTriggerInput.value.trim();
+  const txt = panelTextInput.value.trim();
+
+  if(!kw || !txt){
+    alert('يرجى إدخال مفتاح الاختصار ونص العبارة أولاً!');
+    return;
+  }
+
+  if(editingOriginalKeyword === null){
+    // إضافة جديد
+    if(CANNED_STORE.some(i => normalizeKey(i.keyword) === normalizeKey(kw))){
+      alert('هذا الاختصار موجود مسبقاً!');
+      return;
+    }
+    CANNED_STORE.unshift({ keyword: kw, text: txt });
+    flashToast('تم إضافة الاختصار بنجاح ✅');
+  } else {
+    // تعديل موجود
+    CANNED_STORE = CANNED_STORE.map(i => i.keyword === editingOriginalKeyword ? { keyword: kw, text: txt } : i);
+    // لو المفضلة تحتوي على المفتاح القديم، نحدثه أيضاً
+    const favIdx = FAV_KEYS.indexOf(editingOriginalKeyword);
+    if(favIdx > -1) FAV_KEYS[favIdx] = kw;
+    flashToast('تم تعديل الاختصار بنجاح ✅');
+  }
+
+  syncStorage();
+  runFilter();
+  snippetEditorPanel.classList.add('hidden-view');
+  editingOriginalKeyword = null;
+});
+
+cancelSnippetBtn.addEventListener('click', ()=>{
+  snippetEditorPanel.classList.add('hidden-view');
+  editingOriginalKeyword = null;
+});
+
+function removeSnippet(key){
+  if(!confirm(`حذف [${key}]؟`)) return;
+  CANNED_STORE = CANNED_STORE.filter(i => i.keyword !== key);
+  FAV_KEYS = FAV_KEYS.filter(k => k !== key);
+  syncStorage();
+  runFilter();
+}
+
+function runFilter(){
+  if(globalDebounce) clearTimeout(globalDebounce);
+
+  const rawVal = queryInput.value.trim();
+  const searchVal = normalizeKey(rawVal);
+  const scope = queryScope.value;
+  queryReset.style.display = rawVal.length ? 'block' : 'none';
+
+  let workingSet = CANNED_STORE;
+  if(ONLY_FAV_FILTER) workingSet = workingSet.filter(i => FAV_KEYS.includes(i.keyword));
+
+  if(rawVal.length){
+    if(AUTO_COPY_ACTIVE && searchVal.length > 0){
+      globalDebounce = setTimeout(()=>{
+        const match = workingSet.find(i => {
+          const k = normalizeKey(i.keyword);
+          return k === searchVal;
+        });
+        
+        if(match && normalizeKey(queryInput.value) === normalizeKey(match.keyword)){
+          copyPayload(match.text, null, `⚡ تم النسخ: ${match.keyword}`);
+          queryInput.value = '';
+          runFilter();
+        }
+      }, 500);
+    }
+
+    workingSet = workingSet.filter(i => {
+      const matchKey = normalizeKey(i.keyword).includes(searchVal);
+      const matchText = i.text.toLowerCase().includes(rawVal.toLowerCase());
+      if(scope === 'keyword') return matchKey;
+      if(scope === 'text') return matchText;
+      return matchKey || matchText;
+    });
+  }
+
+  refreshDisplay(workingSet);
+}
+
+queryInput.addEventListener('input', runFilter);
+queryScope.addEventListener('change', runFilter);
+queryReset.addEventListener('click', ()=>{ queryInput.value = ''; runFilter(); });
+
+// استيراد ملفات الإكسل
+document.getElementById('excelUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const workbook = XLSX.read(evt.target.result, { type: 'binary' });
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+      let added = 0;
+      rows.forEach(r => {
+        const keys = Object.keys(r);
+        const kField = keys.find(k => /^(keyword|code|اختصار|مفتاح)$/i.test(k.trim())) || keys[0];
+        const tField = keys.find(k => /^(text|phrase|snippet|العبارة|النص)$/i.test(k.trim())) || keys[1];
+        const kw = kField ? String(r[kField]).trim() : '';
+        const txt = tField ? String(r[tField]).trim() : '';
+        if(kw && txt && !CANNED_STORE.some(x => normalizeKey(x.keyword) === normalizeKey(kw))){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+          added++;
+        }
+      });
+      syncStorage();
+      runFilter();
+      flashToast(`تم استيراد ${added} اختصار من الإكسل بنجاح ✅`);
+    } catch(err){
+      flashToast('حدث خطأ أثناء قراءة ملف الإكسل ❌');
+    }
+    e.target.value = '';
+  };
+  reader.readAsBinaryString(file);
+});
+
+// استيراد ملفات Backup
+document.getElementById('jsonUpload').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt){
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      const dataset = parsed.combos || (Array.isArray(parsed) ? parsed : []);
+      let added = 0;
+      dataset.forEach(entry => {
+        const kw = (entry.keyword || entry.code || entry.name || '').trim();
+        const txt = (entry.snippet || entry.text || '').trim();
+        if(kw && txt && !CANNED_STORE.some(x => normalizeKey(x.keyword) === normalizeKey(kw))){
+          CANNED_STORE.push({ keyword: kw, text: txt });
+          added++;
+        }
+      });
+      syncStorage();
+      runFilter();
+      flashToast(`تم استيراد ${added} اختصار بنجاح ✅`);
+    } catch(err){
+      flashToast('تعذر قراءة ملف النسخة الاحتياطية ❌');
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById('wipeAllBtn').addEventListener('click', ()=>{
+  if(!confirm('مسح كل البيانات؟')) return;
+  CANNED_STORE = []; FAV_KEYS = []; syncStorage(); runFilter();
+});
+
+exportDropBtn.addEventListener('click', (e)=>{ e.stopPropagation(); exportDropMenu.classList.toggle('show'); });
+document.addEventListener('click', ()=> exportDropMenu.classList.remove('show'));
+
+exportDropMenu.addEventListener('click', (e)=>{
+  const act = e.target.dataset.act;
+  if(act === 'btbackup'){
+    const btPayload = {
+      fileVersion: 1,
+      groups: [{ uuid: "{e9a8f4c2-0000-4000-8000-000000000001}", name: "Agent Canned", enabled: true }],
+      combos: CANNED_STORE.map((item, idx) => ({
+        uuid: `{e9a8f4c2-0000-4000-8000-${String(idx + 1).padStart(12, '0')}}`,
+        name: item.keyword,
+        keyword: item.keyword,
+        snippet: item.text,
+        description: "",
+        groupUuid: "{e9a8f4c2-0000-4000-8000-000000000001}",
+        matchingMode: 1,
+        enabled: true
+      }))
+    };
+    triggerDownload(JSON.stringify(btPayload, null, 2), 'Beeftext last update.btbackup', 'application/json');
+    flashToast('تم تصدير نسخة Beeftext بنجاح 💾');
+  } else if(act === 'csv'){
+    const lines = ['keyword,text'];
+    CANNED_STORE.forEach(i => lines.push(`"${i.keyword.replace(/"/g, '""')}","${i.text.replace(/"/g, '""')}"`));
+    triggerDownload(lines.join('\n'), 'Agent_Lite.csv', 'text/csv');
+  } else if(act === 'favs'){
+    const favsData = CANNED_STORE.filter(i => FAV_KEYS.includes(i.keyword));
+    triggerDownload(JSON.stringify(favsData, null, 2), 'Favorites_Backup.json', 'application/json');
+  }
+});
+
+function triggerDownload(content, filename, mime){
+  const blob = new Blob([content], { type: mime });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+/* الوضع العائم المستقل PiP */
+const hudTemplateMarkup = `
+  <div class="chrono-box" id="hudMainBox">
+    <div class="chrono-row">
+      <div id="liveClock" class="live-clock">0:00:00</div>
+      <button id="chronoSnapAction" class="hud-btn snap" title="لقطة شاشة نظيفة">📸</button>
+      <button id="chronoHoldAction" class="hud-btn hold-btn" title="Hold 2 دقيقة — كليك تشغيل / كليك تاني Reset">⏳ 2:00</button>
+      <div id="chronoDigits" class="chrono-digits" title="كليك تشغيل / كليك تاني Reset • Media Keys مدعومة">00:00</div>
+    </div>
+  </div>
+  <div class="hud-input-bar" id="hudInputBar">
+    <input id="hudSearchInput" class="hud-search" placeholder="ابحث باحتصار الكاند..." autocomplete="off" autofocus />
+    <div id="hudAutoBadge" class="hud-autotag">⚡ Auto</div>
+  </div>
+  <div id="hudAlertToast" class="hud-toast">تم النسخ ⚡</div>
+`;
+
+const hudStyles = `
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #06080d; color: #e2e8f0; font-family: system-ui, sans-serif; padding: 3px; user-select: none; transition: opacity 0.1s ease; overflow: hidden; }
+  .chrono-box { background: #0d121c; border: 1px solid #192333; border-radius: 6px; padding: 3px 4px; margin-bottom: 3px; }
+  .chrono-row { display: flex; align-items: center; gap: 4px; }
+  .live-clock { font-family: monospace; font-size: 11px; font-weight: 700; color: #00e5ff; background: #162030; padding: 4px 6px; border-radius: 5px; text-align: center; flex-shrink: 0; height: 26px; display: flex; align-items: center; }
+  .hud-btn { border: none; background: #162030; font-size: 11px; font-weight: 700; border-radius: 5px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .hud-btn.snap { background: #3b82f6; width: 26px; height: 26px; color: #fff; flex-shrink: 0; font-size: 12px; }
+  .hud-btn.hold-btn { background: #00ffaa; color: #021a11; height: 26px; padding: 0 6px; font-family: monospace; font-size: 11px; flex-shrink: 0; min-width: 50px; }
+  .hud-btn.hold-btn.running { background: #162030; color: #00ffaa; border: 1px solid #00ffaa; }
+  .hud-btn.hold-btn.halt { background: #ff0055 !important; color: #fff !important; }
+  .chrono-digits { font-family: monospace; font-size: 16px; font-weight: 700; color: #00e5ff; cursor: pointer; padding: 0 6px; text-align: center; flex: 1; letter-spacing: 1px; min-width: 48px; height: 26px; background: #162030; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .chrono-digits.active { color: #00ffaa; background: rgba(0, 255, 170, 0.15); }
+  .hud-input-bar { display: flex; flex-direction: row-reverse; gap: 4px; align-items: center; }
+  .hud-search { flex: 1; background: #0d121c; border: 1px solid #192333; border-radius: 5px; color: #fff; padding: 4px 6px; font-size: 10.5px; outline: none; direction: rtl; min-width: 0; }
+  .hud-search:focus { border-color: #00e5ff; }
+  .hud-autotag { background: #00ffaa; color: #021a11; font-size: 9.5px; font-weight: 800; padding: 4px 6px; border-radius: 5px; cursor: pointer; display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; }
+  .hud-autotag.off { background: #1e293b; color: #64748b; }
+  .hud-toast { position: fixed; bottom: 3px; left: 50%; transform: translateX(-50%); background: #000; border: 1px solid #00ffaa; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px; display: none; z-index: 1000; direction: rtl; white-space: nowrap; }
+`;
+
+window.__agentTimerControls = null;
+
+dockModeBtn.addEventListener('click', async ()=>{
+  if ('documentPictureInPicture' in window) {
+    try {
+      const pipWin = await window.documentPictureInPicture.requestWindow({ width: 255, height: 68 });
+
+      const styleEl = pipWin.document.createElement('style');
+      styleEl.textContent = hudStyles;
+      pipWin.document.head.appendChild(styleEl);
+      pipWin.document.body.innerHTML = hudTemplateMarkup;
+
+      const pipDoc = pipWin.document;
+      const chronoDigits = pipDoc.getElementById('chronoDigits');
+      const chronoSnapAction = pipDoc.getElementById('chronoSnapAction');
+      const chronoHoldAction = pipDoc.getElementById('chronoHoldAction');
+      const liveClock = pipDoc.getElementById('liveClock');
+      const hudSearchInput = pipDoc.getElementById('hudSearchInput');
+      const hudAutoBadge = pipDoc.getElementById('hudAutoBadge');
+      const hudAlertToast = pipDoc.getElementById('hudAlertToast');
+
+      let targetDirHandle = null;
+      let activeDisplayStream = null;
+      let activeImageCapture = null;
+
+      function updateLiveClock(){
+        const now = new Date();
+        liveClock.innerText = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+      }
+      updateLiveClock();
+      const clockInterval = pipWin.setInterval(updateLiveClock, 1000);
+
+      function clearMediaHandlers(){
+        const clear = (nav) => {
+          if (!nav || !nav.mediaSession) return;
+          try { nav.mediaSession.setActionHandler('play', null); } catch(e){}
+          try { nav.mediaSession.setActionHandler('pause', null); } catch(e){}
+          try { nav.mediaSession.setActionHandler('stop', null); } catch(e){}
+          try { nav.mediaSession.setActionHandler('nexttrack', null); } catch(e){}
+          try { nav.mediaSession.setActionHandler('previoustrack', null); } catch(e){}
+          try { nav.mediaSession.metadata = null; } catch(e){}
+          try { nav.mediaSession.playbackState = 'none'; } catch(e){}
+        };
+        clear(navigator);
+        clear(pipWin.navigator);
+        window.__agentTimerControls = null;
+        if (silentAudio) {
+          try { silentAudio.pause(); } catch(e){}
+          silentAudio = null;
+        }
+      }
+
+      pipWin.addEventListener('unload', ()=> {
+        pipWin.clearInterval(clockInterval);
+        if(activeDisplayStream) activeDisplayStream.getTracks().forEach(t => t.stop());
+        clearMediaHandlers();
+      });
+
+      let stopwatchRunning = false, stopwatchElapsed = 0, stopwatchInterval = null, stopwatchStartTime = 0;
+      let silentAudio = null;
+      function formatTime(ms){
+        const totalSecs = Math.floor(ms / 1000);
+        return `${String(Math.floor(totalSecs / 60)).padStart(2,'0')}:${String(totalSecs % 60).padStart(2,'0')}`;
+      }
+
+      function updateMediaSessionState(){
+        const apply = (nav) => {
+          if (!nav || !('mediaSession' in nav)) return;
+          try {
+            nav.mediaSession.playbackState = stopwatchRunning ? 'playing' : 'paused';
+            nav.mediaSession.setPositionState({
+              duration: Math.max(stopwatchElapsed / 1000 + 7200, 1),
+              playbackRate: 1,
+              position: Math.min(stopwatchElapsed / 1000, 7199)
+            });
+          } catch(e){}
+        };
+        apply(navigator);
+        apply(pipWin.navigator);
+      }
+
+      function startStopwatch(){
+        if (stopwatchRunning) return;
+        stopwatchRunning = true;
+        chronoDigits.classList.add('active');
+        stopwatchStartTime = performance.now();
+        stopwatchInterval = pipWin.setInterval(()=>{
+          stopwatchElapsed += (performance.now() - stopwatchStartTime);
+          stopwatchStartTime = performance.now();
+          chronoDigits.innerText = formatTime(stopwatchElapsed);
+          updateMediaSessionState();
+        }, 200);
+        if (silentAudio && silentAudio.paused) {
+          silentAudio.play().catch(()=>{});
+        }
+        updateMediaSessionState();
+        triggerPipToast('▶️ تشغيل التايمر');
+      }
+
+      function pauseStopwatch(){
+        if (!stopwatchRunning) return;
+        stopwatchRunning = false;
+        pipWin.clearInterval(stopwatchInterval);
+        chronoDigits.classList.remove('active');
+        updateMediaSessionState();
+        triggerPipToast('⏸️ إيقاف مؤقت');
+      }
+
+      function resetStopwatch(){
+        stopwatchRunning = false;
+        if (stopwatchInterval) pipWin.clearInterval(stopwatchInterval);
+        stopwatchElapsed = 0;
+        chronoDigits.classList.remove('active');
+        chronoDigits.innerText = "00:00";
+        updateMediaSessionState();
+        triggerPipToast('⏹️ إعادة تعيين');
+      }
+
+      function toggleStopwatch(){
+        if (stopwatchRunning) pauseStopwatch();
+        else startStopwatch();
+      }
+
+      window.__agentTimerControls = {
+        start: startStopwatch,
+        pause: pauseStopwatch,
+        reset: resetStopwatch,
+        toggle: toggleStopwatch,
+        isRunning: () => stopwatchRunning
+      };
+
+      // كليك ماوس على التايمر = تشغيل / كليك تاني = Reset (نفس سلوك Media Keys)
+      let lastMediaActionAt = 0;
+      function startOrResetStopwatch(){
+        if (!window.__agentTimerControls) return;
+        const now = Date.now();
+        if (now - lastMediaActionAt < 400) return;
+        lastMediaActionAt = now;
+
+        if (window.__agentTimerControls.isRunning()) {
+          window.__agentTimerControls.reset();
+        } else {
+          window.__agentTimerControls.start();
+        }
+      }
+
+      chronoDigits.addEventListener('click', ()=> startOrResetStopwatch());
+
+      // ===== Hold Timer (2 دقيقة عد تنازلي) — كليك تشغيل / كليك تاني Reset =====
+      let holdRunning = false, holdRemaining = 120 * 1000, holdInterval = null, holdStartTime = 0;
+      function renderHoldUI(){
+        chronoHoldAction.innerText = `⏳ ${formatTime(holdRemaining)}`;
+        if (holdRemaining <= 15000) chronoHoldAction.classList.add('halt');
+        else chronoHoldAction.classList.remove('halt');
+      }
+      function resetHold(){
+        holdRunning = false;
+        if (holdInterval) pipWin.clearInterval(holdInterval);
+        holdRemaining = 120 * 1000;
+        chronoHoldAction.className = 'hud-btn hold-btn';
+        chronoHoldAction.innerText = '⏳ 2:00';
+      }
+      chronoHoldAction.addEventListener('click', ()=>{
+        if (holdRunning) {
+          resetHold();
+          triggerPipToast('⏹️ Hold Reset');
+        } else {
+          holdRunning = true;
+          chronoHoldAction.className = 'hud-btn hold-btn running';
+          holdStartTime = performance.now();
+          holdInterval = pipWin.setInterval(()=>{
+            holdRemaining -= (performance.now() - holdStartTime);
+            holdStartTime = performance.now();
+            if (holdRemaining <= 0) {
+              holdRemaining = 0;
+              pipWin.clearInterval(holdInterval);
+              holdRunning = false;
+              chronoHoldAction.className = 'hud-btn hold-btn';
+              chronoHoldAction.innerText = '⏳ 2:00';
+              triggerPipToast('⏰ انتهى الـ Hold');
+            } else {
+              renderHoldUI();
+            }
+          }, 200);
+          triggerPipToast('⏳ Hold بدأ');
+        }
+      });
+
+      function setupMediaSession(nav){
+        if (!nav || !('mediaSession' in nav)) return;
+        try {
+          nav.mediaSession.metadata = new MediaMetadata({
+            title: 'Agent Timer',
+            artist: 'Agent Lite • By Geek',
+            album: 'Support Tools'
+          });
+          nav.mediaSession.setActionHandler('play', () => startOrResetStopwatch());
+          nav.mediaSession.setActionHandler('pause', () => startOrResetStopwatch());
+          nav.mediaSession.setActionHandler('stop', () => {
+            if (window.__agentTimerControls) window.__agentTimerControls.reset();
+          });
+          try { nav.mediaSession.setActionHandler('nexttrack', null); } catch(e){}
+          try { nav.mediaSession.setActionHandler('previoustrack', null); } catch(e){}
+          updateMediaSessionState();
+        } catch(e){}
+      }
+      setupMediaSession(navigator);
+      setupMediaSession(pipWin.navigator);
+
+      try {
+        const silentWav = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+        silentAudio = new Audio(silentWav);
+        silentAudio.loop = true;
+        silentAudio.volume = 0.001;
+        silentAudio.play().catch(()=>{});
+      } catch(e){}
+
+      function handleMediaKey(e){
+        const k = e.key;
+        if (k === 'MediaPlayPause' || k === 'MediaPlay' || k === 'MediaPause') {
+          e.preventDefault();
+          startOrResetStopwatch();
+        } else if (k === 'MediaStop') {
+          e.preventDefault();
+          if (window.__agentTimerControls) window.__agentTimerControls.reset();
+        }
+      }
+      pipDoc.addEventListener('keydown', handleMediaKey);
+      document.addEventListener('keydown', handleMediaKey);
+      pipWin.addEventListener('unload', () => {
+        document.removeEventListener('keydown', handleMediaKey);
+        if (silentAudio) {
+          silentAudio.pause();
+          silentAudio = null;
+        }
+      });
+
+      chronoSnapAction.addEventListener('click', async ()=>{
+        try {
+          if (!targetDirHandle && ('showDirectoryPicker' in pipWin || 'showDirectoryPicker' in window)) {
+            const picker = pipWin.showDirectoryPicker || window.showDirectoryPicker;
+            targetDirHandle = await picker({ id: 'attach_folder', mode: 'readwrite' });
+          }
+
+          if (!activeDisplayStream || !activeDisplayStream.active) {
+            activeDisplayStream = await pipWin.navigator.mediaDevices.getDisplayMedia({
+              video: { displaySurface: "monitor" },
+              audio: false,
+              monitorTypeSurfaces: "include",
+              surfaceSwitching: "exclude"
+            });
+            const track = activeDisplayStream.getVideoTracks()[0];
+            activeImageCapture = new ImageCapture(track);
+
+            track.addEventListener('ended', ()=>{
+              activeDisplayStream = null;
+              activeImageCapture = null;
+            });
+          }
+
+          pipDoc.body.style.opacity = '0';
+          await new Promise(r => pipWin.setTimeout(r, 200));
+
+          const bitmap = await activeImageCapture.grabFrame();
+          pipDoc.body.style.opacity = '1';
+
+          const canvas = pipDoc.createElement('canvas');
+          canvas.width = bitmap.width;
+          canvas.height = bitmap.height;
+          canvas.getContext('2d').drawImage(bitmap, 0, 0);
+
+          canvas.toBlob(async (blob)=>{
+            const fileName = `Full_Screen_${new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)}.jpg`;
+            if (targetDirHandle) {
+              try {
+                const fileHandle = await targetDirHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(blob);
+                await writable.close();
+                triggerPipToast('تم الحفظ كـ JPG بنجاح ✅');
+                return;
+              } catch(e){}
+            }
+            const link = pipDoc.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            triggerPipToast('تم تنزيل الشاشة كاملة JPG 📸');
+          }, 'image/jpeg', 0.92);
+        } catch(err){
+          pipDoc.body.style.opacity = '1';
+          activeDisplayStream = null;
+          activeImageCapture = null;
+          triggerPipToast('تم إلغاء الالتقاط أو حدث خطأ');
+        }
+      });
+
+      let pipAutoCopy = AUTO_COPY_ACTIVE;
+      let pipDebounce = null;
+      hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
+      hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
+      hudAutoBadge.addEventListener('click', ()=>{
+        pipAutoCopy = !pipAutoCopy;
+        hudAutoBadge.className = 'hud-autotag ' + (pipAutoCopy ? '' : 'off');
+        hudAutoBadge.innerText = pipAutoCopy ? '⚡ Auto' : '✋ يدوي';
+      });
+
+      // تعطيل رسائل التنبيه في الوضع العائم (بتشتت)
+      function triggerPipToast(msg){ /* silent */ }
+
+      async function copyFromPip(text, label){
+        try {
+          await pipWin.navigator.clipboard.writeText(text);
+          triggerPipToast(label || 'تم النسخ ✅');
+        } catch(e){}
+      }
+
+      hudSearchInput.addEventListener('input', ()=>{
+        if(pipDebounce) pipWin.clearTimeout(pipDebounce);
+        const rawVal = hudSearchInput.value.trim();
+        const searchVal = normalizeKey(rawVal);
+        if(!rawVal) return;
+
+        if(pipAutoCopy && searchVal.length > 0){
+          pipDebounce = pipWin.setTimeout(()=>{
+            const match = CANNED_STORE.find(i => normalizeKey(i.keyword) === searchVal);
+            if(match && normalizeKey(hudSearchInput.value) === normalizeKey(match.keyword)){
+              copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
+              hudSearchInput.value = '';
+            }
+          }, 450);
+        }
+      });
+
+      hudSearchInput.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter'){
+          const rawVal = hudSearchInput.value.trim();
+          const searchVal = normalizeKey(rawVal);
+          const match = CANNED_STORE.find(i => normalizeKey(i.keyword) === searchVal);
+          if(match){
+            if(pipDebounce) pipWin.clearTimeout(pipDebounce);
+            copyFromPip(match.text, `⚡ تم نسخ: ${match.keyword}`);
+            hudSearchInput.value = '';
+          }
+        }
+      });
+
+      return;
+    } catch(err) {}
+  }
+  alert("يرجى استخدام متصفح Google Chrome محدّث للتمتع بالوضع العائم الحقيقي.");
+});
+
+
+/* ================================
+   Agent Lite anonymous device analytics
+   Counts a physical device once across tabs/browsers as far as the Web platform allows.
+   ================================ */
+(() => {
+  const SB_URL = 'https://vpwityllvveprrummkmk.supabase.co';
+  const SB_KEY = 'sb_publishable_rtNcmuN7Ovo02xl2exDEuQ_-TapY6c1';
+
+  const makeId = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  }));
+  const sessionId = makeId();
+
+  function detectBrowser(){
+    const ua = navigator.userAgent;
+    if (/Edg\//.test(ua)) return 'Edge';
+    if (/OPR\//.test(ua)) return 'Opera';
+    if (/Chrome\//.test(ua)) return 'Chrome';
+    if (/Firefox\//.test(ua)) return 'Firefox';
+    if (/Safari\//.test(ua)) return 'Safari';
+    return 'Other';
+  }
+
+  function platformFamily(){
+    const ua = navigator.userAgent || '';
+    const p = (navigator.userAgentData?.platform || navigator.platform || '').toLowerCase();
+    if (/windows|win/.test(p) || /windows/i.test(ua)) return 'Windows';
+    if (/android/i.test(ua)) return 'Android';
+    if (/iphone|ipad|ipod/i.test(ua)) return 'iOS';
+    if (/mac/.test(p) || /macintosh/i.test(ua)) return 'macOS';
+    if (/linux/.test(p) || /linux/i.test(ua)) return 'Linux';
+    return 'Other';
+  }
+
+  function normalizedGpu(){
+    try {
+      const c = document.createElement('canvas');
+      const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+      if (!gl) return 'nogpu';
+      const ext = gl.getExtension('WEBGL_debug_renderer_info');
+      let value = ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+      value = String(value || 'gpu').toLowerCase();
+      return value
+        .replace(/angle\s*\([^,]+,?/g,'')
+        .replace(/direct3d\d*/g,'')
+        .replace(/vs_\d+_\d+|ps_\d+_\d+/g,'')
+        .replace(/0x[0-9a-f]+/g,'')
+        .replace(/[^a-z0-9]+/g,' ')
+        .trim()
+        .slice(0,80) || 'gpu';
+    } catch (_) { return 'nogpu'; }
+  }
+
+  async function sha256(text){
+    try {
+      const bytes = new TextEncoder().encode(text);
+      const digest = await crypto.subtle.digest('SHA-256', bytes);
+      return Array.from(new Uint8Array(digest)).map(b=>b.toString(16).padStart(2,'0')).join('');
+    } catch (_) {
+      let h = 2166136261;
+      for (let i=0;i<text.length;i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return 'fallback-' + (h >>> 0).toString(16).padStart(8,'0');
+    }
+  }
+
+  async function buildDeviceFingerprint(){
+    const sw = Math.max(screen.width || 0, screen.height || 0);
+    const sh = Math.min(screen.width || 0, screen.height || 0);
+    const aw = Math.max(screen.availWidth || 0, screen.availHeight || 0);
+    const ah = Math.min(screen.availWidth || 0, screen.availHeight || 0);
+    const parts = [
+      'agent-lite-device-v2',
+      platformFamily(),
+      `${sw}x${sh}`,
+      `${aw}x${ah}`,
+      String(screen.colorDepth || 0),
+      String(navigator.hardwareConcurrency || 0),
+      String(navigator.maxTouchPoints || 0),
+      Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+      normalizedGpu()
+    ];
+    return 'dev_' + (await sha256(parts.join('|'))).slice(0,40);
+  }
+
+  function currentPage(){
+    if (!document.getElementById('aboutPageView')?.classList.contains('hidden-view')) return 'about';
+    if (!document.getElementById('feedbackPageView')?.classList.contains('hidden-view')) return 'feedback';
+    return document.pictureInPictureElement ? 'pip' : 'main';
+  }
+
+  async function rpc(name, payload, keepalive=false){
+    try {
+      await fetch(`${SB_URL}/rest/v1/rpc/${name}`, {
+        method: 'POST',
+        keepalive,
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': `Bearer ${SB_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (_) {}
+  }
+
+  (async () => {
+    const deviceId = await buildDeviceFingerprint();
+
+    function ping(){
+      return rpc('agent_lite_ping', {
+        p_device_id: deviceId,
+        p_session_id: sessionId,
+        p_page: currentPage(),
+        p_browser: detectBrowser(),
+        p_platform: platformFamily(),
+        p_screen: `${screen.width}x${screen.height}`,
+        p_is_mobile: /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+      });
+    }
+
+    ping();
+    const heartbeat = setInterval(ping, 30000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) ping(); });
+    window.addEventListener('focus', ping);
+    window.addEventListener('pagehide', () => {
+      clearInterval(heartbeat);
+      rpc('agent_lite_end', { p_device_id: deviceId, p_session_id: sessionId }, true);
+    });
+  })();
+})();
+
+runFilter();
+</script>
+</body>
+</html>
