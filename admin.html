@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agent Lite • Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@500;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#06080d;--surface:#0c1017;--elev:#131924;--hover:#1b2332;--green:#00ffaa;--cyan:#00e5ff;--red:#ff0055;--amber:#ffaa00;--text:#f1f5f9;--muted:#64748b;--sub:#94a3b8;--border:#1e293b;--border2:#334155;--r:16px;--rm:10px;--code:'Fira Code',monospace;--font:'Plus Jakarta Sans',system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;background-image:radial-gradient(circle at 15% 10%,rgba(0,255,170,.04),transparent 38%),radial-gradient(circle at 85% 80%,rgba(0,229,255,.035),transparent 38%)}
+.shell{max-width:1180px;margin:auto;padding:24px 16px 48px}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:0 18px 45px rgba(0,0,0,.25)}
+.top{padding:16px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:relative;overflow:hidden}.top:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--red))}.brand{display:flex;align-items:center;gap:12px}.chip{font:700 12px var(--code);color:var(--green);background:var(--elev);border:1px solid var(--border2);padding:6px 10px;border-radius:6px;box-shadow:0 0 14px rgba(0,255,170,.18)}h1{font-size:19px;margin:0}h1 span{color:var(--cyan)}
+.btn{border:1px solid var(--border);background:var(--elev);color:var(--text);font:700 12px var(--font);border-radius:9px;padding:9px 13px;cursor:pointer}.btn:hover{background:var(--hover)}.btn.primary{background:var(--green);color:#02140d;border-color:var(--green)}.btn.danger{color:#ff7aa5}.hidden{display:none!important}
+.login-wrap{max-width:430px;margin:70px auto}.login{padding:28px}.login h2{margin:0 0 5px;color:var(--cyan);font-size:20px}.login p{margin:0 0 22px;color:var(--muted);font-size:12px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}.field input{width:100%;background:var(--elev);border:1px solid var(--border);border-radius:10px;padding:12px 13px;color:#fff;outline:none;font-family:var(--font)}.field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,229,255,.08)}.login .btn{width:100%;padding:12px}.error{color:#ff789e;font-size:12px;margin-top:10px;min-height:18px}
+.dashboard{margin-top:18px}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:14px}.stat{padding:18px}.stat .label{color:var(--muted);font-size:11px;font-weight:700}.stat .value{font:700 27px var(--code);margin-top:7px;color:var(--cyan)}.stat.online .value{color:var(--green)}.stat small{color:var(--sub);font-size:10px}
+.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:14px}.panel{padding:18px;min-width:0}.panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.panel h3{margin:0;font-size:14px}.live{display:inline-flex;align-items:center;gap:6px;color:var(--green);font:700 10px var(--code)}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px var(--green)}
+.table-wrap{overflow:auto;max-height:540px;border:1px solid var(--border);border-radius:10px}table{width:100%;border-collapse:collapse;font-size:11.5px;white-space:nowrap}th,td{padding:10px 11px;text-align:right;border-bottom:1px solid var(--border)}th{position:sticky;top:0;background:#0f151f;color:var(--sub);z-index:1}tr:hover td{background:rgba(255,255,255,.02)}.status{display:inline-flex;align-items:center;gap:5px}.status .dot{width:6px;height:6px}.device{font-family:var(--code);color:var(--cyan)}.muted{color:var(--muted)}
+.notice{margin-top:14px;padding:12px 15px;color:var(--sub);font-size:11px;line-height:1.6}.notice b{color:var(--green)}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:520px){.stats{grid-template-columns:1fr}.shell{padding:12px}.top{align-items:flex-start}.brand{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top card">
+    <div class="brand"><span class="chip">ADMIN</span><div><h1>Agent Lite <span>• Control Center</span></h1></div></div>
+    <div id="adminActions" class="hidden"><button id="refreshBtn" class="btn">↻ تحديث</button> <button id="logoutBtn" class="btn danger">تسجيل الخروج</button></div>
+  </header>
+
+  <section id="loginView" class="login-wrap">
+    <div class="login card">
+      <h2>دخول الإدارة</h2><p>هذه الصفحة مخصصة لإدارة ومتابعة استخدام Agent Lite.</p>
+      <form id="loginForm">
+        <div class="field"><label>اسم المستخدم</label><input id="username" autocomplete="username" required></div>
+        <div class="field"><label>كلمة المرور</label><input id="password" type="password" autocomplete="current-password" required></div>
+        <button id="loginBtn" class="btn primary" type="submit">دخول لوحة التحكم</button>
+        <div id="loginError" class="error"></div>
+      </form>
+    </div>
+  </section>
+
+  <main id="dashboardView" class="dashboard hidden">
+    <section class="stats">
+      <div class="stat card online"><div class="label">🟢 Online Now</div><div id="onlineNow" class="value">0</div><small>أجهزة فريدة • آخر 90 ثانية</small></div>
+      <div class="stat card"><div class="label">👥 مستخدمون اليوم</div><div id="todayUsers" class="value">0</div><small>أجهزة فريدة</small></div>
+      <div class="stat card"><div class="label">📊 Sessions اليوم</div><div id="todaySessions" class="value">0</div><small>منذ 12 صباحًا</small></div>
+      <div class="stat card"><div class="label">🗂️ Total Sessions</div><div id="totalSessions" class="value">0</div><small>إجمالي الجلسات</small></div>
+      <div class="stat card"><div class="label">⏱ متوسط الجلسة</div><div id="avgSession" class="value">0</div><small>دقيقة</small></div>
+    </section>
+
+    <section class="grid">
+      <div class="panel card">
+        <div class="panel-head"><h3>الأجهزة المتصلة الآن</h3><span class="live"><span class="dot"></span> LIVE</span></div>
+        <div class="table-wrap"><table><thead><tr><th>المعرف</th><th>الصفحة</th><th>المتصفح</th><th>النظام</th><th>جلسات مفتوحة</th><th>آخر نشاط</th></tr></thead><tbody id="onlineBody"></tbody></table></div>
+      </div>
+      <div class="panel card">
+        <div class="panel-head"><h3>آخر الجلسات</h3><span id="lastRefresh" class="muted" style="font-size:10px"></span></div>
+        <div class="table-wrap"><table><thead><tr><th>المعرف</th><th>الحالة</th><th>المتصفح</th><th>بدأت</th><th>آخر نشاط</th></tr></thead><tbody id="recentBody"></tbody></table></div>
+      </div>
+    </section>
+    <div class="notice card">🔒 يتم حساب <b>الجهاز الفريد</b> بدل عدد الـTabs أو المتصفحات قدر الإمكان، باستخدام بصمة تقنية مجهولة. لا يتم جمع الاسم أو البريد أو رقم الهاتف أو محتوى الاختصارات.</div>
+  </main>
+</div>
+<script>
+const SB_URL='https://vpwityllvveprrummkmk.supabase.co';
+const SB_KEY='sb_publishable_rtNcmuN7Ovo02xl2exDEuQ_-TapY6c1';
+const TOKEN_KEY='agent_lite_admin_token';
+let refreshTimer=null;
+const $=id=>document.getElementById(id);
+async function rpc(name,payload){
+  const res=await fetch(`${SB_URL}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  if(!res.ok){const t=await res.text();throw new Error(t||`HTTP ${res.status}`)}
+  const text=await res.text(); return text ? JSON.parse(text) : null;
+}
+function fmtDate(v){if(!v)return '—';return new Intl.DateTimeFormat('ar-EG',{dateStyle:'short',timeStyle:'medium',timeZone:'Africa/Cairo'}).format(new Date(v))}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function showLogin(msg=''){clearInterval(refreshTimer);$('loginView').classList.remove('hidden');$('dashboardView').classList.add('hidden');$('adminActions').classList.add('hidden');$('loginError').textContent=msg}
+function showDashboard(){$('loginView').classList.add('hidden');$('dashboardView').classList.remove('hidden');$('adminActions').classList.remove('hidden')}
+async function loadStats(){
+  const token=sessionStorage.getItem(TOKEN_KEY); if(!token){showLogin();return}
+  try{
+    const d=await rpc('agent_lite_admin_stats',{p_token:token});
+    $('onlineNow').textContent=d.online_now??0;$('todayUsers').textContent=d.today_users??0;$('todaySessions').textContent=d.today_sessions??0;$('totalSessions').textContent=d.total_sessions??0;$('avgSession').textContent=d.avg_session_minutes??0;
+    const online=d.online||[]; $('onlineBody').innerHTML=online.length?online.map(r=>`<tr><td class="device">${escapeHtml(r.device)}</td><td>${escapeHtml(r.page||'main')}</td><td>${escapeHtml(r.browser||'—')}</td><td>${escapeHtml(r.platform||'—')}</td><td>${escapeHtml(r.open_sessions??1)}</td><td>${fmtDate(r.last_seen)}</td></tr>`).join(''):'<tr><td colspan="6" class="muted">لا توجد أجهزة Online حاليًا</td></tr>';
+    const recent=d.recent||[]; $('recentBody').innerHTML=recent.length?recent.map(r=>{const isOn=!r.ended_at && (Date.now()-new Date(r.last_seen).getTime()<90000);return `<tr><td class="device">${escapeHtml(r.device)}</td><td><span class="status">${isOn?'<span class="dot"></span> Online':'<span class="muted">Offline</span>'}</span></td><td>${escapeHtml(r.browser||'—')}</td><td>${fmtDate(r.started_at)}</td><td>${fmtDate(r.last_seen)}</td></tr>`}).join(''):'<tr><td colspan="5" class="muted">لا توجد جلسات بعد</td></tr>';
+    $('lastRefresh').textContent='آخر تحديث: '+new Date().toLocaleTimeString('ar-EG'); showDashboard();
+  }catch(e){sessionStorage.removeItem(TOKEN_KEY);showLogin('انتهت الجلسة أو تعذر التحقق من صلاحية الأدمن.')}
+}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='';$('loginBtn').disabled=true;$('loginBtn').textContent='جارِ التحقق...';try{const data=await rpc('agent_lite_admin_login',{p_username:$('username').value.trim(),p_password:$('password').value});const row=Array.isArray(data)?data[0]:data;if(!row?.token)throw new Error('invalid');sessionStorage.setItem(TOKEN_KEY,row.token);$('password').value='';await loadStats();clearInterval(refreshTimer);refreshTimer=setInterval(loadStats,15000)}catch(_){$('loginError').textContent='اسم المستخدم أو كلمة المرور غير صحيحة.'}finally{$('loginBtn').disabled=false;$('loginBtn').textContent='دخول لوحة التحكم'}});
+$('refreshBtn').addEventListener('click',loadStats);
+$('logoutBtn').addEventListener('click',async()=>{const token=sessionStorage.getItem(TOKEN_KEY);sessionStorage.removeItem(TOKEN_KEY);try{if(token)await rpc('agent_lite_admin_logout',{p_token:token})}catch(_){}showLogin()});
+if(sessionStorage.getItem(TOKEN_KEY)){loadStats();refreshTimer=setInterval(loadStats,15000)}else showLogin();
+</script>
+</body></html>
